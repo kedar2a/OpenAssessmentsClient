@@ -253,7 +253,6 @@
    margin: 1rem 0;
    display: inline-block;
    padding: 0 1.5rem;
-   height: 3.5rem;
    border-radius: $radius;
    border-width: 0.2rem;
    border-style: solid;
@@ -267,6 +266,10 @@
    border-color: $primary;
    cursor: pointer;
    @include transition(all 0.1s ease);
+   display: flex;
+   flex-direction: row;
+   justify-content: space-between;
+   width: 50vw;
 
  &:hover{
    background: $white;
@@ -274,18 +277,33 @@
  }
 
  span{
-   display: inline-block;
+   align-self: center;
    height: 100%;
-   line-height: 3rem;
+   line-height:1.5rem;
    @include transition(all 0.1s ease);
  }
 
  input[type="file"]{
-   width: 0.1px;
-     height: 0.1px;
-     opacity: 0;
-     overflow: hidden;
-     position: absolute;
-     z-index: -1;
+   align-self: center;
+   height:100%;
+   overflow: hidden;
+   position: relative;
+   left: 1.5rem;
+   padding: 0.35em 0;
+   background: $white;
+   border-radius: 0 0.2rem 0.2rem 0;
+   color: $primary;
+
  }
+
+ input[type="file"]::-webkit-file-upload-button {
+   width: 0.1px;
+   opacity: 0;
+ }
+
+  input[type="file"]:hover {
+   background: darken($primary, 25%);
+   color: $white;
+  }
 }
+
