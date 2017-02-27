@@ -4,13 +4,15 @@ import TestUtils    from 'react-addons-test-utils';
 
 import FileUpload   from './file_upload';
 
-var fileUpload, subject, props;
+let fileUpload;
+let subject;
+let props;
 describe('file upload', () => {
   beforeEach(() => {
     props = {
       selectAnswer: () => {},
       localizedStrings: {
-        uploadFile: "Upload file"
+        uploadFile: 'Upload file'
       }
     };
     spyOn(props, 'selectAnswer');

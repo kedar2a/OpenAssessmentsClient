@@ -26,29 +26,18 @@ export default class FileUpload extends React.Component {
     }
 
     if (e.target.files[0] !== undefined) {
-      console.log('file here');
       this.setState({ uplFile:e.target.files[0].name });
     } else {
-      console.log('no file here');
       this.setState({ uplFile: '' });
     }
   }
 
-  resetChange() {
-    this.setState({ uplFile: '' });
-    this.formInput.reset();
-    this.props.selectAnswer('');
-    this.inputField.click();
-  }
-
   render() {
     return (
-      <div>
-        <label htmlFor="file-upload" className="c-file-upload">
-          <span>{this.props.localizedStrings.chooseFile}</span>
-          <input id="file-upload" ref={(input) => { this.inputField = input; }} onChange={e => this.handleChange(e)} type="file" className="c-file-upload-input" /><input type="text" value={this.state.uplFile ? this.state.uplFile : this.props.localizedStrings.noFile} readOnly />
-        </label>
-      </div>
+      <label htmlFor="file-upload" className="c-file-upload">
+        <span>{this.props.localizedStrings.chooseFile}</span>
+        <input id="file-upload" ref={(input) => { this.inputField = input; }} onChange={e => this.handleChange(e)} type="file" className="c-file-upload-input" /><input type="text" value={this.state.uplFile ? this.state.uplFile : this.props.localizedStrings.noFile} readOnly />
+      </label>
     );
   }
 }
