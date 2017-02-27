@@ -251,25 +251,23 @@
 
 .c-file-upload{
    margin: 1rem 0;
-   display: inline-block;
    padding: 0 1.5rem;
-   border-radius: $radius;
-   border-width: 0.2rem;
-   border-style: solid;
-   text-transform: uppercase;
-   @include bold;
-   font-size: 1.4rem;
-   position: relative;
-   @include center(horizontal);
-   background: $primary;
-   color: $white;
-   border-color: $primary;
-   cursor: pointer;
-   @include transition(all 0.1s ease);
    display: flex;
    flex-direction: row;
    justify-content: space-between;
-   width: 50vw;
+   align-items: center;
+   position: relative;
+   border-radius: $radius;
+   border: 0.2rem solid $primary;
+   @include regular;
+   font-size: 1.4rem;
+   line-height: 1.5rem;
+   @include center(horizontal);
+   background: $primary;
+   color: $white;
+   cursor: pointer;
+   @include transition(all 0.1s ease);
+   width: 60vw;
 
  &:hover{
    background: $white;
@@ -277,33 +275,34 @@
  }
 
  span{
-   align-self: center;
-   height: 100%;
-   line-height:1.5rem;
+  padding-top: 0.15rem;
+   @include bold;
+   text-transform: uppercase;
    @include transition(all 0.1s ease);
  }
 
  input[type="file"]{
-   align-self: center;
-   height:100%;
-   overflow: hidden;
-   position: relative;
-   left: 1.5rem;
-   padding: 0.35em 0;
-   background: $white;
-   border-radius: 0 0.2rem 0.2rem 0;
-   color: $primary;
-
- }
-
- input[type="file"]::-webkit-file-upload-button {
    width: 0.1px;
+   height:0.1px;
    opacity: 0;
+   overflow: hidden;
+   position: absolute;
+   z-index: -1;
  }
 
-  input[type="file"]:hover {
-   background: darken($primary, 25%);
-   color: $white;
+  input[type="text"]{
+    min-height: 3.5rem;
+    overflow: hidden;
+    position: relative;
+    left: 1.5rem;
+    padding: 0.25rem 1rem;
+    border: none;
+    border-left: 0.25rem solid $primary;
+    color: $primary;
+    text-overflow: ellipsis;
+    width: 50%;
+    @include transition(all 0.1s ease);
   }
 }
+
 

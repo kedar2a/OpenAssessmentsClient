@@ -13,7 +13,7 @@ export default class FileUpload extends React.Component {
   constructor() {
     super();
     this.state = {
-      uplFile: null
+      uplFile: ''
     };
   }
 
@@ -23,49 +23,32 @@ export default class FileUpload extends React.Component {
       // multiple uploads on the file input, the file list will only be of size 1
       // and will get replaced every time the file is updated.
       this.props.selectAnswer(e.target.files[0]);
+    }
+
+    if (e.target.files[0] !== undefined) {
+      console.log('file here');
       this.setState({ uplFile:e.target.files[0].name });
+    } else {
+      console.log('no file here');
+      this.setState({ uplFile: '' });
     }
   }
 
   resetChange() {
     this.setState({ uplFile: '' });
     this.formInput.reset();
-    this.inputField.click();
     this.props.selectAnswer('');
+    this.inputField.click();
   }
 
   render() {
     return (
       <div>
-        <form id="fileUpload" ref={(form) => { this.formInput = form; }}>
-          <label htmlFor="file-upload" className="c-file-upload" >
-            <span>{this.props.localizedStrings.chooseFile}</span>
-            <input id="file-upload" ref={(input) => { this.inputField = input; }} onChange={e => this.handleChange(e)} type="file" className="c-file-upload-input" />
-          </label>
-        </form>
-        <label htmlFor="file-upload2" className="c-file-upload" >
-          <input type="text" value={this.state.uplFile ? this.state.uplFile : 'no file chosen'} />
-          <button id="file-upload2" onClick={() => this.resetChange()} className="c-file-upload-input" > delete</button>
+        <label htmlFor="file-upload" className="c-file-upload">
+          <span>{this.props.localizedStrings.chooseFile}</span>
+          <input id="file-upload" ref={(input) => { this.inputField = input; }} onChange={e => this.handleChange(e)} type="file" className="c-file-upload-input" /><input type="text" value={this.state.uplFile ? this.state.uplFile : this.props.localizedStrings.noFile} readOnly />
         </label>
       </div>
     );
   }
 }
-
-
-// if (this.state.uplFile !== '') {
-//       fileUploadEl = (
-//         <div className="c-file-upload">Your selected file: <span>{this.state.uplFile}</span>
-//           <button onClick={() => { this.resetChange(); }}>select different file</button>
-//         </div>
-//       );
-//     } else {
-//       fileUploadEl = (
-//         <form className="c-file-upload" id="fileUpload" ref={(form) => { this.formInput = form; }}>
-//           <label htmlFor="file-upload">
-//             <span>{this.props.localizedStrings.chooseFile}</span>
-//             <input id="file-upload" onChange={e => this.handleChange(e)} type="file" />
-//           </label>
-//         </form>
-//       );
-//     }
