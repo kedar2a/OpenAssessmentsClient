@@ -25,6 +25,7 @@ export default class FileUpload extends React.Component {
       this.props.selectAnswer(e.target.files[0]);
     }
 
+    // fake the behavior of what the standard input type="file" shows the user
     if (e.target.files[0] !== undefined) {
       this.setState({ uplFile:e.target.files[0].name });
     } else {
