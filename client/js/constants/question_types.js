@@ -1,9 +1,15 @@
 export default {
-  multipleChoice: 'multipleChoice',
-  shortAnswer: 'shortAnswer',
-  fileUpload: 'fileUpload',
   audioUpload: 'audioUpload',
+  fileUpload: 'fileUpload',
+  movableWordSandbox: 'movableWordSandbox',
+  movableWordSentence: 'movableWordSentence',
+  movableFillBlank: 'movableFillBlank',
+  shortAnswer: 'shortAnswer',
+  imageSequence: 'imageSequence',
+  multipleChoice: 'multipleChoice',
   reflection: 'reflection',
-  multipleReflection: 'multipleReflection',
   multipleAnswer: 'multipleAnswer',
-}
+  multipleReflection: 'multipleReflection',
+};
+
+export const audioLimit = 240;

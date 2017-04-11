@@ -1,20 +1,34 @@
 import React            from 'react';
+import { connect }            from 'react-redux';
 import _                from 'lodash';
-import MultipleChoice   from './multiple_choice';
+
+import * as ItemActions from '../../../../actions/qbank/items';
+import MovableFillBlank from './movable_fill_blank/movable_fill_blank';
+import MultipleChoice   from './multiple_choice/multiple_choice';
 import QuestionHeader   from './question_common/header/_header';
 import Settings         from './question_common/settings';
 import QuestionText     from './question_common/text';
 import AudioUpload      from './audio_upload';
 import FileUpload       from './file_upload';
+import ImageSequence    from './image_sequence/_image_sequence';
 import ShortAnswer      from './short_answer';
+import WordSentence     from './movable_word_sentence/movable_word_sentence';
+import MovableWordSandbox from './movable_words_sandbox/movable_words_sandbox';
 import types            from '../../../../constants/question_types';
 import languages        from '../../../../constants/language_types';
+import Preview          from './preview_question';
 
-export default class Question extends React.Component {
+export class Question extends React.Component {
   static propTypes = {
+    bankId: React.PropTypes.string.isRequired,
     item: React.PropTypes.shape({
+      id: React.PropTypes.string,
       type: React.PropTypes.string,
       bankId: React.PropTypes.string,
+      name: React.PropTypes.string,
+      question: React.PropTypes.shape({
+        choices: React.PropTypes.shape({}),
+      }),
     }).isRequired,
     isActive: React.PropTypes.bool,
     itemIndex: React.PropTypes.number,
@@ -22,23 +36,49 @@ export default class Question extends React.Component {
     bottomItem: React.PropTypes.bool,
     reorderActive: React.PropTypes.bool,
     updateItem: React.PropTypes.func.isRequired,
-    updateChoice: React.PropTypes.func.isRequired,
     activateItem: React.PropTypes.func.isRequired,
     toggleReorder: React.PropTypes.func.isRequired,
+    createChoice: React.PropTypes.func.isRequired,
     deleteAssessmentItem: React.PropTypes.func.isRequired,
     moveItem: React.PropTypes.func.isRequired,
   };
+
+  static questionComponents = {
+    [types.audioUpload]: AudioUpload,
+    [types.fileUpload]: FileUpload,
+    [types.movableFillBlank]: MovableFillBlank,
+    [types.movableWordSandbox]: MovableWordSandbox,
+    [types.movableWordSentence]: WordSentence,
+    [types.multipleAnswer]: MultipleChoice,
+    [types.multipleChoice]: MultipleChoice,
+    [types.multipleReflection]: MultipleChoice,
+    [types.reflection]: MultipleChoice,
+    [types.shortAnswer]: ShortAnswer,
+    [types.imageSequence]: ImageSequence,
+  };
+
+  static stateDrivenTypes = [
+    types.movableWordSentence,
+    types.imageSequence,
+  ];
 
   constructor(props) {
     super(props);
     this.state = {
       reorderActive: false,
-      language: languages.languageTypeId.english
+      language: languages.languageTypeId.english,
+      preview: false,
+      activeChoice: null,
+      item: {
+        question: {
+          choices: {}
+        }
+      }
     };
   }
 
   getClassName() {
-    if (this.props.isActive && this.props.reorderActive) {
+    if (this.props.isActive && (this.props.reorderActive || this.state.preview)) {
       return 'reorder-active';
     }
 
@@ -53,16 +93,17 @@ export default class Question extends React.Component {
     this.props.moveItem(this.props.itemIndex, this.props.itemIndex + 1);
   }
 
-  updateItem(newItemProperties) {
-
+  updateItem(newItemProperties, forceSkipState) {
     const { item } = this.props;
 
     if (newItemProperties.language) {
       if (newItemProperties.language && this.state.language !== newItemProperties.language) {
         this.setState({ language: newItemProperties.language });
       }
+    } else if (_.includes(Question.stateDrivenTypes, item.type) && !forceSkipState) {
+      this.setState({ ...item, ...newItemProperties });
     } else {
-      this.props.updateItem({
+      this.props.updateItem(this.props.bankId, {
         id: item.id,
         language: newItemProperties.language || this.state.language,
         ...newItemProperties
@@ -70,9 +111,34 @@ export default class Question extends React.Component {
     }
   }
 
+  updateChoice(itemId, choiceId, choice, fileIds) {
+    const { item } = this.props;
+    const updateAttributes = {
+      id: itemId,
+      question: {
+        choices: {
+          [choiceId]: choice,
+        },
+        fileIds,
+      }
+    };
+    if (_.includes(Question.stateDrivenTypes, item.type)) {
+      this.setState({ item: _.merge(this.state.item, updateAttributes) });
+    } else {
+      this.updateItem(updateAttributes);
+    }
+  }
+
+  saveStateItem() {
+    const { item } = this.props;
+    const saveItem = _.cloneDeep(this.state.item);
+    saveItem.id = item.id;
+    this.props.updateItem(this.props.bankId, saveItem);
+  }
+
   changeType(type) {
     // The choices: true is to make sure the deserializer updates the choice and answer data
-    this.props.updateItem({
+    this.props.updateItem(this.props.bankId, {
       id: this.props.item.id,
       type,
       question: {
@@ -112,65 +178,118 @@ export default class Question extends React.Component {
     this.changeType(type);
   }
 
-  content() {
-    switch (this.props.item.type) {
-      case types.multipleChoice:
-      case types.reflection:
-      case types.multipleReflection:
-      case types.multipleAnswer:
-        return (
-          <MultipleChoice
-            {...this.props}
-            updateItem={newProps => this.updateItem(newProps)}
-            updateChoice={this.props.updateChoice}
-            isActive={this.props.isActive}
-          />
-        );
-      case types.audioUpload:
-        return (
-          <AudioUpload
-            updateItem={newProps => this.updateItem(newProps)}
-            item={this.props.item}
-          />
-        );
-      case types.fileUpload:
-        return (
-          <FileUpload
-            updateItem={newProps => this.updateItem(newProps)}
-            item={this.props.item}
-          />
-        );
+  selectChoice(choiceId) {
+    this.setState({ activeChoice: choiceId });
+  }
 
-      case types.shortAnswer:
-        return (
-          <ShortAnswer
-            updateItem={newProps => this.updateItem(newProps)}
-            item={this.props.item}
-          />
-        );
 
-      default:
-        return null;
+  blurOptions(e) {
+    const currentTarget = e.currentTarget;
+    setTimeout(() => {
+      if (!currentTarget.contains(document.activeElement) ||
+        (currentTarget === document.activeElement)
+      ) {
+        this.selectChoice(null);
+      }
+    }, 0);
+  }
+
+  deleteChoice(choice) {
+    if (confirm('Are you sure you want to delete this option?')) {
+      this.updateItem({
+        question: {
+          choices: this.markedForDeletion(choice)
+        }
+      }, true);
     }
   }
 
-  render() {
+  markedForDeletion(choice) {
+    const newChoices = _.cloneDeep(this.props.item.question.choices);
+    newChoices[choice.id].delete = true;
+    return newChoices;
+  }
+
+  content() {
+    const { bankId, item } = this.props;
+    const Component = Question.questionComponents[this.props.item.type];
+    if (Component) {
+      return (
+        <Component
+          item={_.merge(item, this.state.item)}
+          updateItem={(newProps, forceSkipState) => this.updateItem(newProps, forceSkipState)}
+          updateChoice={(itemId, choiceId, choice, fileIds) =>
+            this.updateChoice(itemId, choiceId, choice, fileIds)}
+          isActive={this.props.isActive}
+          activeChoice={this.state.activeChoice}
+          selectChoice={choiceId => this.selectChoice(choiceId)}
+          blurOptions={e => this.blurOptions(e)}
+          createChoice={(text, fileIds) => this.props.createChoice(bankId, item.id, text, fileIds)}
+          deleteChoice={choice => this.deleteChoice(choice)}
+          save={() => this.saveStateItem()}
+        />
+      );
+    }
+    return null;
+  }
+
+  editContent() {
     const { item } = this.props;
     const { name, type, id, question, bankId } = item;
+    const { multipleAnswer, multipleReflection, reflection } = types;
     const defaultLanguage = this.state.language;
-    const className = this.getClassName();
-    const choosenLanguage = _.find(item.question.texts, (textObj) => {
-      return textObj.languageTypeId === defaultLanguage;
-    });
-    const questionText = _.get(choosenLanguage, 'text', '');
-    const languageTypeId = _.get(choosenLanguage, 'languageTypeId');
+    const chosenLanguage = _.find(item.question.texts,
+      textObj => textObj.languageTypeId === defaultLanguage);
+    const questionText = _.get(chosenLanguage, 'text', '');
+    const languageTypeId = _.get(chosenLanguage, 'languageTypeId');
 
     return (
+      <div>
+        <Settings
+          id={id}
+          updateItem={newProps => this.updateItem(newProps)}
+          defaultName={name}
+          language={this.state.language}
+          shuffle={question.shuffle}
+          multipleAnswer={item.type === multipleAnswer || item.type === multipleReflection}
+          reflection={_.includes([reflection, multipleReflection], item.type)}
+          makeReflection={reflect => this.makeReflection(reflect)}
+          makeMultipleAnswer={multi => this.makeMultipleAnswer(multi)}
+          type={type}
+        />
+        <div className={`au-c-question__content ${this.props.reorderActive ? 'is-reordering' : ''}`}>
+          <QuestionText
+            itemType={type}
+            fileIds={question.fileIds}
+            itemId={id}
+            editorKey={languageTypeId}
+            text={questionText}
+            updateItem={newProps => this.updateItem(newProps, true)}
+            bankId={bankId}
+          />
+          {this.content()}
+        </div>
+      </div>
+    );
+  }
+
+  previewContent() {
+    return (
+      <Preview
+        item={this.props.item}
+      />
+    );
+  }
+
+  render() {
+    const { name, type, id } = this.props.item;
+    const className = this.getClassName();
+    return (
       <div
-        className={`author--o-item author--c-question ${className}`}
+        className={`au-o-item au-c-question ${className}`}
         tabIndex="0"
-        onClick={() => this.props.activateItem(item.id)}
-        onFocus={() => this.props.activateItem(item.id)}
+        onClick={() => this.props.activateItem(id)}
+        onFocus={() => this.props.activateItem(id)}
       >
         <QuestionHeader
           name={name}
@@ -184,30 +303,14 @@ export default class Question extends React.Component {
           reorderActive={this.props.isActive && this.props.reorderActive}
           moveUp={() => this.moveQuestionUp()}
           moveDown={() => this.moveQuestionDown()}
+          togglePreview={() => this.setState({ preview: !this.state.preview })}
+          itemIndex={this.props.itemIndex}
+          preview={this.state.preview}
         />
-        <Settings
-          id={id}
-          updateItem={newProps => this.updateItem(newProps)}
-          defaultName={name}
-          language={this.state.language}
-          shuffle={question.shuffle}
-          multipleAnswer={item.type === types.multipleAnswer || item.type === types.multipleReflection}
-          reflection={_.includes([types.reflection, types.multipleReflection], item.type)}
-          makeReflection={reflect => this.makeReflection(reflect)}
-          makeMultipleAnswer={multi => this.makeMultipleAnswer(multi)}
-          type={type}
-        />
-        <div className={`author--c-question__content ${this.props.reorderActive ? 'is-reordering' : ''}`}>
-          <QuestionText
-            itemId={id}
-            editorKey={languageTypeId}
-            text={questionText}
-            updateItem={newProps => this.updateItem(newProps)}
-            bankId={bankId}
-          />
-          {this.content()}
-        </div>
+        {this.state.preview && this.props.isActive ? this.previewContent() : this.editContent()}
       </div>
     );
   }
 }
+
+export default connect(null, ItemActions)(Question);

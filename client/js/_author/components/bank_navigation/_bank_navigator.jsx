@@ -6,12 +6,12 @@ import * as AssessmentActions from '../../../actions/qbank/assessments';
 import * as ItemActions       from '../../../actions/qbank/items';
 import Heading                from '../common/heading';
 import BankList               from './bank_list';
+import  * as assessmentSelectors from '../../selectors/assessment';
 
-function select(state) {
+function select(state, props) {
   const path = state.bankNavigation.location;
   const currentBankId = !_.isEmpty(path) ? _.last(path).id : null;
   let banks = state.banks;
-
   _.forEach(path, (folder) => {
     const currentBank = _.find(banks, { id: folder.id });
     banks = currentBank.childNodes;
@@ -39,7 +39,6 @@ export class BankNavigator extends React.Component {
     }),
     path               : React.PropTypes.arrayOf(React.PropTypes.shape({})).isRequired,
     updatePath         : React.PropTypes.func.isRequired,
-    getBanks           : React.PropTypes.func.isRequired,
     getAssessments     : React.PropTypes.func.isRequired,
     getAssessmentOffered     : React.PropTypes.func.isRequired,
     getItems           : React.PropTypes.func.isRequired,
@@ -57,14 +56,11 @@ export class BankNavigator extends React.Component {
     };
   }
 
-  componentWillMount() {
-    this.props.getBanks();
-  }
-
-  getBankChildren(bank) {
-    this.props.updatePath(bank.id, bank.displayName.text);
-    this.props.getAssessments(bank.id);
-    this.props.getItems(bank.id);
+  getBankChildren(bankId) {
+    const bank = _.find(this.props.banks, b => b.id === bankId);
+    if (bank) { this.props.updatePath(bankId, bank); }
+    this.props.getAssessments(bankId);
+    this.props.getItems(bankId);
   }
 
   sortBy(type) {
@@ -84,10 +80,10 @@ export class BankNavigator extends React.Component {
 
     let sortedBanks = this.props.banks;
     if (sortName) {
-      sortedBanks = _.orderBy(sortedBanks, bank => bank.displayName.text, sortName);
+      sortedBanks = _.orderBy(sortedBanks, bank => _.lowerCase(bank.displayName.text), sortName);
     }
     if (sortPublished) {
-      sortedBanks = _.orderBy(sortedBanks, bank => _.find(bank.assignedBankIds, { id: 'the publishedBankId' }), sortPublished);
+      sortedBanks = _.orderBy(sortedBanks, bank => _.includes(bank.assignedBankIds, this.props.settings.publishedBankId), sortPublished);
     }
     return sortedBanks;
   }
@@ -114,17 +110,19 @@ export class BankNavigator extends React.Component {
           createAssessment={createAssessment}
           currentBankId={currentBankId}
           updatePath={updatePath}
+          getBankChildren={bankId => this.getBankChildren(bankId)}
         />
         <BankList
           baseEmbedUrl={settings.baseEmbedUrl}
           banks={this.sortBanks()}
           getEmbedCode={(assessId, bankId) => { this.getEmbedCode(assessId, bankId); }}
           publishedBankId={settings.publishedBankId}
-          getBankChildren={bank => this.getBankChildren(bank)}
+          getBankChildren={bankId => this.getBankChildren(bankId)}
           sortBy={type => this.sortBy(type)}
           sortName={this.state.sortName}
           sortPublished={this.state.sortPublished}
           deleteAssessment={(bankId, assessmentId) => this.deleteAssessment(bankId, assessmentId)}
+          togglePublishAssessment={assessment => this.props.togglePublishAssessment(assessment)}
         />
       </div>
     );
