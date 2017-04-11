@@ -40,7 +40,7 @@ export default function questionSettings(props) {
           />
           <label htmlFor={`check04_${props.id}`}>Reflection</label>
         </div>
-      </div>
+      </div> : null
     );
   }
 

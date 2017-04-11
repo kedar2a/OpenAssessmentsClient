@@ -1,4 +1,5 @@
 import React      from 'react';
+import _          from 'lodash';
 import Radio      from './question_common/option_radio';
 import CheckBox   from './question_common/option_checkbox';
 import types      from '../../../../constants/question_types';
