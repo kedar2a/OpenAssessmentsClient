@@ -8,6 +8,7 @@ const actions = [
 // Actions that make an api request
 const requests = [
   'GET_BANKS_HIERARCHY',
+  'GET_MEDIA',
 ];
 
 export const Constants = wrapper(actions, requests);
@@ -19,10 +20,11 @@ export function getBanks() {
   };
 }
 
-export function updatePath(id, name) {
+export function updatePath(id, bank, back) {
   return {
     id,
-    name,
+    bank,
+    back,
     type: Constants.UPDATE_PATH,
   };
 }

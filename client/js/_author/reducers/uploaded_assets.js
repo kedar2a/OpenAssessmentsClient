@@ -8,8 +8,13 @@ export default (state = initialState, action) => {
 
     case AssetConstants.UPLOAD_MEDIA_DONE: {
       const newState = _.cloneDeep(state);
-      newState[action.original.itemId] = newState[action.original.itemId] || {};
-      newState[action.original.itemId][action.original.guid] = action.payload;
+      if (action.error) {
+        newState[action.original.uploadScopeId] = { error: action.error };
+        return newState;
+      }
+
+      newState[action.original.uploadScopeId] = newState[action.original.uploadScopeId] || {};
+      newState[action.original.uploadScopeId][action.original.guid] = action.payload;
 
       return newState;
     }

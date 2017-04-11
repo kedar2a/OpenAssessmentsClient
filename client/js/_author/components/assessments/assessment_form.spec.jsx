@@ -25,6 +25,7 @@ describe('AssessmentForm component', () => {
           choices: [],
         },
       }],
+      bankId: '',
       name: 'IMASPEC',
       updateAssessment: () => {},
       updateItemOrder: () => { updateItemOrderFunction = true; },
@@ -33,12 +34,13 @@ describe('AssessmentForm component', () => {
       updateChoice: () => {},
       updateAnswer: () => {},
       deleteAssessmentItem: () => {},
+      createChoice: () => {},
     };
     result = shallow(<AssessmentForm {...props} />);
   });
 
   it('renders to the DOM', () => {
-    expect(result.find('.author--c-assessment-title').length).toBe(1);
+    expect(result.find('.au-c-assessment-title').length).toBe(1);
   });
 
   it('renders one labels', () => {

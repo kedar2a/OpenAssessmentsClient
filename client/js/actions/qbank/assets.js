@@ -10,18 +10,19 @@ const requests = [
 
 export const Constants = wrapper(actions, requests);
 
-export function uploadMedia(file, guid, itemId, bankId) {
+export function uploadMedia(file, guid, uploadScopeId, bankId) {
   const formData = new FormData();
   formData.append('inputFile', file);
   formData.append('returnUrl', true);
-
+  formData.append('createNew', true);
   return {
     bankId,
-    itemId,
+    uploadScopeId,
     file,
     guid,
     apiCall: true,
     type: Constants.UPLOAD_MEDIA,
-    body: formData
+    body: formData,
+    timeout: 1000000,
   };
 }

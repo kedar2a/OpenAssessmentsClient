@@ -7,10 +7,12 @@ import guid           from '../../../../utils/guid';
 function serializeChoices(originalChoices, newChoiceAttributes) {
   const choices = _.map(originalChoices, (choice) => {
     const updateValues = newChoiceAttributes[choice.id];
+    const newOrder = _.get(updateValues, 'order');
+
     return {
       id: choice.id,
       text: _.get(updateValues, 'text') || choice.text,
-      order: _.get(updateValues, 'order') || choice.order,
+      order: _.isNil(newOrder) ? choice.order : newOrder,
       delete: _.get(updateValues, 'delete'),
     };
   });
@@ -41,21 +43,25 @@ function serializeQuestion(originalQuestion, newQuestionAttributes) {
   return scrub(newQuestion);
 }
 
-function serializeAnswers(originalChoices, newChoiceAttributes, oldAnswers, correctFeedback, incorrectFeedback) {
+function serializeAnswers(originalChoices, newChoiceAttributes, oldAnswers,
+  correctFeedback, incorrectFeedback
+) {
   const answers = [];
   let correctAnswer = {
     id: _.get(_.find(oldAnswers, { genusTypeId: genusTypes.answer.rightAnswer }), 'id'),
     genusTypeId: genusTypes.answer.rightAnswer,
-    feedback: correctFeedback,
+    feedback: _.get(correctFeedback, 'text'),
     type: genusTypes.answer.multipleAnswer,
     choiceIds: [],
+    fileIds: _.get(correctFeedback, 'fileIds'),
   };
   let incorrectAnswer = {
     id: _.get(_.find(oldAnswers, { genusTypeId: genusTypes.answer.wrongAnswer }), 'id'),
     genusTypeId: genusTypes.answer.wrongAnswer,
-    feedback: incorrectFeedback,
+    feedback: _.get(incorrectFeedback, 'text'),
     type: genusTypes.answer.multipleAnswer,
     choiceIds: [],
+    fileIds: _.get(incorrectFeedback, 'fileIds'),
   };
 
   _.forEach(originalChoices, (choice) => {
@@ -71,8 +77,8 @@ function serializeAnswers(originalChoices, newChoiceAttributes, oldAnswers, corr
     }
   });
 
-  correctAnswer = scrub(correctAnswer);
-  incorrectAnswer = scrub(incorrectAnswer);
+  correctAnswer = scrub(correctAnswer, ['choiceIds']);
+  incorrectAnswer = scrub(incorrectAnswer, ['choiceIds']);
   answers.push(correctAnswer);
   answers.push(incorrectAnswer);
 
@@ -100,8 +106,8 @@ export default function multipleChoiceSerializer(originalItem, newItemAttributes
           originalItem.question.choices,
           question.choices,
           _.get(originalItem, 'originalItem.answers'),
-          _.get(question, 'correctFeedback.text'),
-          _.get(question, 'incorrectFeedback.text')
+          _.get(question, 'correctFeedback'),
+          _.get(question, 'incorrectFeedback')
         );
       }
     }
