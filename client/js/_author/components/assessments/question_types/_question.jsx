@@ -2,24 +2,25 @@ import React        from 'react';
 import { connect }  from 'react-redux';
 import _            from 'lodash';
 
-import * as ItemActions   from '../../../../actions/qbank/items';
-import MovableFillBlank   from './movable_fill_blank/movable_fill_blank';
-import MultipleChoice     from './multiple_choice/multiple_choice';
-import QuestionHeader     from './question_common/header/_header';
-import Settings           from './question_common/settings';
-import QuestionText       from './question_common/text';
-import AudioUpload        from './audio_upload';
-import FileUpload         from './file_upload';
-import ImageSequence      from './image_sequence/_image_sequence';
-import ShortAnswer        from './short_answer';
-import WordSentence       from './movable_word_sentence/movable_word_sentence';
-import MovableWordSandbox from './movable_words_sandbox/movable_words_sandbox';
-import DragAndDrop        from './drag_and_drop/_drag_and_drop';
-import types              from '../../../../constants/question_types';
-import languages          from '../../../../constants/language_types';
-import Preview            from './preview_question';
-import { bankMedia }      from '../../../selectors/media';
-import localize           from '../../../locales/localize';
+import * as ItemActions           from '../../../../actions/qbank/items';
+import MovableFillBlank           from './movable_fill_blank/movable_fill_blank';
+import MultipleChoice             from './multiple_choice/multiple_choice';
+import QuestionHeader             from './question_common/header/_header';
+import Settings                   from './question_common/settings';
+import QuestionText               from './question_common/text';
+import AudioUpload                from './audio_upload';
+import FileUpload                 from './file_upload';
+import ImageSequence              from './image_sequence/_image_sequence';
+import ShortAnswer                from './short_answer';
+import WordSentence               from './movable_word_sentence/movable_word_sentence';
+import MovableWordSandbox         from './movable_words_sandbox/movable_words_sandbox';
+import DragAndDrop                from './drag_and_drop/_drag_and_drop';
+import types                      from '../../../../constants/question_types';
+import { languages, getLanguage } from '../../../../constants/language_types';
+import Preview                    from './preview_question';
+import { bankMedia }              from '../../../selectors/media';
+import localize                   from '../../../locales/localize';
+import { languageText }           from '../../../../utils/utils';
 
 function select(state, props) {
   return {
@@ -33,6 +34,7 @@ export class Question extends React.Component {
     item: React.PropTypes.shape({
       id: React.PropTypes.string,
       type: React.PropTypes.string,
+      isRemoving: React.PropTypes.bool,
       bankId: React.PropTypes.string,
       name: React.PropTypes.string,
       question: React.PropTypes.shape({
@@ -145,6 +147,7 @@ export class Question extends React.Component {
     const { item } = this.props;
     const saveItem = _.cloneDeep(this.state.item);
     saveItem.id = item.id;
+    saveItem.language = this.state.language;
     this.props.updateItem(this.props.bankId, saveItem);
   }
 
@@ -156,7 +159,8 @@ export class Question extends React.Component {
       question: {
         type,
         choices: {},
-      }
+      },
+      language: this.state.language
     });
   }
 
@@ -194,6 +198,21 @@ export class Question extends React.Component {
     this.setState({ activeChoice: choiceId });
   }
 
+  getDuplicateAnswers() {
+    const itemType = this.props.item.type;
+    if (!_.includes(Question.stateDrivenTypes, itemType)) { return []; }
+
+    const propChoices = this.props.item.question.choices;
+    const stateChoices = this.state.item.question.choices;
+
+    return _({})
+      .merge(propChoices, stateChoices)
+      .map(itemType === 'imageSequence' ? 'order' : 'answerOrder')
+      .groupBy()
+      .pickBy(x => x.length > 1)
+      .keys()
+      .value();
+  }
 
   blurOptions(e) {
     const currentTarget = e.currentTarget;
@@ -208,12 +227,19 @@ export class Question extends React.Component {
 
   deleteChoice(choice) {
     const strings = this.props.localizeStrings('question');
+    const { item } = this.props;
     if (confirm(strings.confirm)) {
       this.updateItem({
         question: {
           choices: this.markedForDeletion(choice)
         }
       }, true);
+      if (_.includes(Question.stateDrivenTypes, item.type)
+        && _.get(this, `state.item.question.choices[${choice.id}]`)) {
+        const choices = this.state.item.question.choices;
+        delete choices[choice.id];
+        this.setState({ item: _.merge(this.state.item, { question: { choices } }) });
+      }
     }
   }
 
@@ -238,9 +264,11 @@ export class Question extends React.Component {
           selectChoice={choiceId => this.selectChoice(choiceId)}
           blurOptions={e => this.blurOptions(e)}
           createChoice={(text, fileIds, type) =>
-            this.props.createChoice(bankId, item.id, text, fileIds, type)}
+            this.props.createChoice(bankId, item.id, text, fileIds, type, this.state.language)}
           deleteChoice={choice => this.deleteChoice(choice)}
+          language={this.state.language}
           save={() => this.saveStateItem()}
+          duplicateAnswers={this.getDuplicateAnswers()}
         />
       );
     }
@@ -251,11 +279,6 @@ export class Question extends React.Component {
     const { item } = this.props;
     const { name, type, id, question, bankId } = item;
     const { multipleAnswer, multipleReflection, reflection } = types;
-    const defaultLanguage = this.state.language;
-    const chosenLanguage = _.find(item.question.texts,
-      textObj => textObj.languageTypeId === defaultLanguage);
-    const questionText = _.get(chosenLanguage, 'text', '');
-    const languageTypeId = _.get(chosenLanguage, 'languageTypeId') || defaultLanguage;
 
     return (
       <div>
@@ -276,8 +299,8 @@ export class Question extends React.Component {
             itemType={type}
             fileIds={question.fileIds}
             itemId={id}
-            editorKey={languageTypeId}
-            text={questionText}
+            editorKey={getLanguage(this.state.language)}
+            text={languageText(question.texts, this.state.language)}
             updateItem={newProps => this.updateItem(newProps, true)}
             bankId={bankId}
           />
@@ -296,15 +319,17 @@ export class Question extends React.Component {
   }
 
   render() {
-    const { name, type, id } = this.props.item;
+    const { name, type, id, isRemoving } = this.props.item;
     const className = this.getClassName();
     return (
       <div
+        key={id}
         className={`au-o-item au-c-question ${className}`}
         onClick={() => this.props.activateItem(id)}
         onFocus={() => this.props.activateItem(id)}
       >
         <QuestionHeader
+          isRemoving={isRemoving}
           name={name}
           type={type}
           deleteAssessmentItem={this.props.deleteAssessmentItem}

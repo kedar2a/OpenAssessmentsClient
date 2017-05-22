@@ -3,16 +3,23 @@ import _        from 'lodash';
 import WordType from '../question_common/word_type_dropdown';
 import localize from '../../../../locales/localize';
 
+const defaultText = { text: '', wordType: 'other' };
+
 function option(props) {
   const strings = props.localizeStrings('movableWordSentanceOption');
 
+  let boxClass = '';
+  if (!_.isNil(props.answerOrder) && props.answerOrder !== '') { boxClass = 'is-ordered'; }
+  if (_.includes(props.duplicateAnswers, props.answerOrder)) { boxClass = 'is-error'; }
+
+  const choiceText = _.get(props, `texts[${props.language}]`, defaultText);
   return (
     <div
       onFocus={props.selectChoice}
       onClick={props.selectChoice}
       className={`au-c-answer au-o-flex-center ${props.isActive ? 'is-active' : ''}`}
     >
-      <div className={`au-c-dropdown au-c-dropdown--tiny au-u-mr-sm ${!_.isNil(props.answerOrder) && props.answerOrder !== '' ? 'is-ordered' : ''}`}>
+      <div className={`au-c-dropdown au-c-dropdown--tiny au-u-mr-sm ${boxClass}`}>
         <label htmlFor={`option_order_${props.id}`} />
         <select
           name=""
@@ -38,7 +45,7 @@ function option(props) {
         <label htmlFor={`option_text_${props.id}`} />
         <div className="au-c-input__contain">
           <input
-            defaultValue={props.text}
+            defaultValue={choiceText.text}
             onBlur={e => props.updateChoice({ text: e.target.value })}
             className="au-c-text-input au-c-text-input--small au-c-wysiwyg"
             id={`option_text_${props.id}`}
@@ -54,7 +61,6 @@ function option(props) {
         wordType={props.wordType}
         updateChoice={props.updateChoice}
       />
-
       <button onClick={props.deleteChoice} className="au-c-answer--delete">
         <i className="material-icons">close</i>
       </button>
@@ -64,7 +70,6 @@ function option(props) {
 
 option.propTypes = {
   id: React.PropTypes.string.isRequired,
-  text: React.PropTypes.string,
   wordType: React.PropTypes.string,
   answerOrder: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]),
   itemCount: React.PropTypes.number.isRequired,
@@ -73,6 +78,8 @@ option.propTypes = {
   updateChoice: React.PropTypes.func.isRequired,
   deleteChoice: React.PropTypes.func.isRequired,
   localizeStrings: React.PropTypes.func.isRequired,
+  duplicateAnswers: React.PropTypes.arrayOf(React.PropTypes.string),
+  language: React.PropTypes.string,
 };
 
 export default localize(option);

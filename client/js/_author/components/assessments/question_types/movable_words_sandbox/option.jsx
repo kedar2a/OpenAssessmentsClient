@@ -1,5 +1,8 @@
-import React from 'react';
+import React  from 'react';
+import _      from 'lodash';
 import Loader from '../../../common/dot_loader';
+
+const defaultText = { text: '', wordType: undefined };
 
 export default function Option(props) {
   const activeClass = props.isActive ? 'is-active' : '';
@@ -15,6 +18,7 @@ export default function Option(props) {
     );
   }
 
+  const choiceText = _.get(props, `choice.texts[${props.language}]`, defaultText);
   return (
     <div
       onFocus={props.selectChoice}
@@ -28,7 +32,7 @@ export default function Option(props) {
             className="au-c-text-input au-c-text-input--small au-c-wysiwyg"
             id={id}
             type="text"
-            defaultValue={props.choice.text}
+            defaultValue={choiceText.text}
             placeholder={`Option ${props.index}`}
             onBlur={e => props.updateChoice({
               id: props.choice.id,
@@ -81,4 +85,5 @@ Option.propTypes = {
   }).isRequired,
   index: React.PropTypes.number.isRequired,
   isActive: React.PropTypes.bool.isRequired,
+  language: React.PropTypes.string.isRequired,
 };

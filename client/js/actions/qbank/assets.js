@@ -21,11 +21,11 @@ export function uploadMedia(file, fileGuids, bankId, metaData = {}) {
     apiCall: true,
     type: Constants.UPLOAD_MEDIA,
     body: file,
-    timeout: 20000,
+    timeout: 2000000,
   };
 }
 
-export function addMediaToQuestion(file, bankId, itemId, where, metaData, newMedia) {
+export function addMediaToQuestion(file, bankId, itemId, where, metaData, newMedia, language) {
   return {
     bankId,
     file,
@@ -36,6 +36,7 @@ export function addMediaToQuestion(file, bankId, itemId, where, metaData, newMed
     apiCall: true,
     type: Constants.ADD_MEDIA_TO_QUESTION,
     body: file,
-    timeout: 20000,
+    timeout: 2000000,
+    language
   };
 }

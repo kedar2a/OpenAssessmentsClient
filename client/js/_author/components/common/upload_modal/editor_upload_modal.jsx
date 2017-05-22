@@ -1,13 +1,13 @@
-import React            from 'react';
-import Modal            from 'react-modal';
-import _                from 'lodash';
+import React                             from 'react';
+import Modal                             from 'react-modal';
+import _                                 from 'lodash';
 
-import Loader           from '../dot_loader';
-import languages        from '../../../../constants/language_types';
-import SearchMedia      from './search_media';
-import LanguageSelect   from '../language_dropdown';
-import Metadata         from './meta_data';
-import localize         from '../../../locales/localize';
+import Loader                            from '../dot_loader';
+import { languages, getLanguage }        from '../../../../constants/language_types';
+import SearchMedia                       from './search_media';
+import LanguageSelect                    from '../language_dropdown';
+import Metadata                          from './meta_data';
+import localize                          from '../../../locales/localize';
 
 const tagNameMap = {
   audio: 'Audio',
@@ -33,6 +33,7 @@ export class EditorUploadModal extends React.Component {
     inProgress: React.PropTypes.bool,
     error: React.PropTypes.string,
     uploadOnly: React.PropTypes.bool,
+    language: React.PropTypes.string,
   };
 
   static initLanguageMediaData() {
@@ -45,7 +46,7 @@ export class EditorUploadModal extends React.Component {
    );
   }
 
-  constructor() {
+  constructor(props) {
     super();
     this.state = {
       languageMediaData: EditorUploadModal.initLanguageMediaData(),
@@ -53,8 +54,18 @@ export class EditorUploadModal extends React.Component {
       mediaAutoPlay: false,
       uploadedMedia: null,
       selectedMedia: null,
-      language: languages.languageTypeId.english, //default to english
+      language: props.language || languages.languageTypeId.english, //default to english
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({ language: nextProps.language });
+  }
+
+  componentDidUpdate() {
+    if (!this.props.isOpen && this.state.uploadedMedia) {
+      this.resetModal();
+    }
   }
 
   setters(key, val) {
@@ -79,9 +90,9 @@ export class EditorUploadModal extends React.Component {
     };
 
     if (this.state.uploadedMedia) {
-      this.props.insertMedia(this.state.uploadedMedia, metaData, true);
+      this.props.insertMedia(this.state.uploadedMedia, metaData, true, this.state.language);
     } else if (this.state.selectedMedia) {
-      this.props.insertMedia(this.state.selectedMedia);
+      this.props.insertMedia(this.state.selectedMedia, null, false, this.state.language);
     }
   }
 
@@ -109,15 +120,17 @@ export class EditorUploadModal extends React.Component {
   metadataTypes() {
     const { mediaType } = this.props;
     if (mediaType === 'audio' || mediaType === 'video') {
-      return ['license', 'copyright'];
+      return ['citation', 'copyright', 'license'];
     }
-    return ['altText', 'license', 'copyright'];
+    return ['altText', 'citation', 'copyright', 'license'];
   }
 
   resetModal() {
-    this.setState({ uploadedMedia: null });
-    this.setState({ languageMediaData: EditorUploadModal.initLanguageMediaData() });
-    this.setState({ language: languages.languageTypeId.english });
+    this.setState({
+      uploadedMedia: null,
+      languageMediaData: EditorUploadModal.initLanguageMediaData(),
+      language: languages.languageTypeId.english
+    });
   }
 
   closeModal() {
@@ -137,7 +150,6 @@ export class EditorUploadModal extends React.Component {
       name = <div className="au-c-error-text">{strings.error}: {this.props.error}</div>;
     }
 
-
     return (
       <Modal
         overlayClassName="au-c-wysiwyg-modal-background"
@@ -152,6 +164,7 @@ export class EditorUploadModal extends React.Component {
           </h3>
           <LanguageSelect
             updateItem={language => this.setState(language)}
+            language={getLanguage(this.state.language)}
           />
           <button onClick={() => this.closeModal()} className="au-c-wysiwyg-modal__close">
             <i className="material-icons">close</i>

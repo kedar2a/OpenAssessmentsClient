@@ -1,10 +1,16 @@
 import React        from 'react';
 import _            from 'lodash';
 import localize     from '../../../../locales/localize';
+import UpdateImage     from './update_image';
 
 function imageOption(props) {
   const { activateChoice, updateChoice, deleteChoice, id, order, numChoices } = props;
   const strings = props.localizeStrings('imageOption');
+
+  let boxClass = '';
+  if (!_.isNil(order) && order !== '') { boxClass = 'is-ordered'; }
+  if (_.includes(props.duplicateAnswers, _.toString(order))) { boxClass = 'is-error'; }
+
   return (
     <div
       className="au-c-image-sequence-answer is-active"
@@ -12,7 +18,7 @@ function imageOption(props) {
       onClick={() => activateChoice(id)}
     >
       <div className="au-c-image-sequence-answer__top">
-        <div className="au-c-dropdown au-c-dropdown--tiny">
+        <div className={`au-c-dropdown au-c-dropdown--tiny ${boxClass}`}>
           <label htmlFor="image_option_order" />
           <select
             name=""
@@ -21,7 +27,7 @@ function imageOption(props) {
               id,
               order: parseInt(e.target.value, 10)
             })}
-            defaultValue={order}
+            value={order}
           >
             <option key="option_key_null" value={null}>{strings.NA}</option>
             {
@@ -48,9 +54,18 @@ function imageOption(props) {
           <div className="au-c-input__bottom" />
         </div>
       </div>
-      <div className="au-c-image-sequence-answer__image">
-        <img src={props.text} alt="" />
-      </div>
+      {
+        !_.isEmpty(props.text) ?
+          <div className="au-c-image-sequence-answer__image">
+            <img src={props.text} alt="" />
+          </div>
+          :
+          <UpdateImage
+            item={props.item}
+            language={props.language}
+            optionId={props.id}
+          />
+      }
     </div>
   );
 }
@@ -65,6 +80,9 @@ imageOption.propTypes = {
   order: React.PropTypes.number,
   numChoices: React.PropTypes.number.isRequired,
   localizeStrings: React.PropTypes.func.isRequired,
+  duplicateAnswers: React.PropTypes.arrayOf(React.PropTypes.string),
+  item: React.PropTypes.shape({}),
+  language: React.PropTypes.string
 };
 
 export default localize(imageOption);

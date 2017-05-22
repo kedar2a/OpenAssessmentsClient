@@ -24,11 +24,14 @@ class MovableWordSentence extends React.Component {
     localizeStrings: React.PropTypes.func.isRequired,
     isActive: React.PropTypes.bool,
     activeChoice: React.PropTypes.string,
+    language: React.PropTypes.string.isRequired,
+    duplicateAnswers: React.PropTypes.arrayOf(React.PropTypes.string),
   };
 
   render() {
     const { question, id } = this.props.item;
     const strings = this.props.localizeStrings('movableWordSentence');
+
     return (
       <div>
         <div
@@ -38,7 +41,7 @@ class MovableWordSentence extends React.Component {
           {
             _.map(question.choices, choice => (
               <Option
-                key={`assessmentChoice_${choice.id}`}
+                key={`assessmentChoice_${choice.id}_${this.props.language}`}
                 {...choice}
                 updateChoice={
                   (newChoice, fileIds) => this.props.updateChoice(id, choice.id, newChoice, fileIds)
@@ -47,6 +50,8 @@ class MovableWordSentence extends React.Component {
                 deleteChoice={() => this.props.deleteChoice(choice)}
                 selectChoice={() => this.props.selectChoice(choice.id)}
                 itemCount={_.size(question.choices)}
+                duplicateAnswers={this.props.duplicateAnswers}
+                language={this.props.language}
               />
             ))
           }
@@ -57,6 +62,7 @@ class MovableWordSentence extends React.Component {
         </div>
         <div className="au-c-question__feedback">
           <Feedback
+            language={this.props.language}
             updateItem={item => this.props.updateItem(item, true)}
             feedbackType="correctFeedback"
             feedback={question.correctFeedback}
@@ -64,6 +70,7 @@ class MovableWordSentence extends React.Component {
             bankId={this.props.item.bankId}
           />
           <Feedback
+            language={this.props.language}
             updateItem={item => this.props.updateItem(item, true)}
             feedbackType="incorrectFeedback"
             feedback={question.incorrectFeedback}

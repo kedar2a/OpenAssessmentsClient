@@ -1,19 +1,29 @@
-import _                          from 'lodash';
-import baseSerializer             from './base';
-import { scrub, buildChoiceText } from '../../serializer_utils';
-import genusTypes                 from '../../../../constants/genus_types';
-import guid                       from '../../../../utils/guid';
+import _                                        from 'lodash';
+import baseSerializer                           from './base';
+import {
+  scrub,
+  buildChoiceText,
+  languageText,
+  extractAllLanguageChoices,
+  addNewChoices
+}                                               from '../../serializer_utils';
+import genusTypes                               from '../../../../constants/genus_types';
+import guid                                     from '../../../../utils/guid';
 
-function serializeChoices(originalChoices, newChoiceAttributes, inlineRegionId) {
-  const choices = _.map(originalChoices, (choice) => {
+function serializeChoices(originalChoices, newChoiceAttributes, inlineRegionId, language) {
+  const allChoices = extractAllLanguageChoices(addNewChoices(originalChoices, language));
+  const choices = _.map(allChoices, (choice) => {
     const updateValues = newChoiceAttributes[choice.id];
+    const isUpdatedLanguage = choice.language && choice.language === language;
+    const updatedText = _.get(updateValues, `texts[${language}]`, {});
 
+    const newText = isUpdatedLanguage ? updatedText.text || choice.text : choice.text;
+    const newWordType = updatedText.wordType || choice.wordType;
+
+    const text = buildChoiceText(newText, newWordType);
     return {
       id: choice.id,
-      text: buildChoiceText(
-        _.get(updateValues, 'text') || choice.text,
-        _.get(updateValues, 'wordType') || choice.wordType || 'other',
-      ),
+      text: languageText(text, choice.language),
       delete: _.get(updateValues, 'delete'),
     };
   });
@@ -21,15 +31,14 @@ function serializeChoices(originalChoices, newChoiceAttributes, inlineRegionId) 
   if (newChoiceAttributes.new) {
     choices.push({
       id: guid(),
-      text: '',
-      order: choices.length,
+      text: languageText('', language),
     });
   }
 
   return { [inlineRegionId]: { choices } };
 }
 
-function serializeQuestion(originalQuestion, newQuestionAttributes, questionString) {
+function serializeQuestion(originalQuestion, newQuestionAttributes, questionString, language) {
   const newQuestion = {
     inlineRegions: null,
   };
@@ -39,7 +48,8 @@ function serializeQuestion(originalQuestion, newQuestionAttributes, questionStri
     newQuestion.inlineRegions = serializeChoices(
       originalQuestion.choices,
       newQuestionAttributes.choices,
-      inlineRegionId
+      inlineRegionId,
+      language
     );
   } else if (!originalQuestion.inlineRegionId) {
     newQuestion.inlineRegions = { [inlineRegionId]: { choices: [] } };
@@ -66,7 +76,7 @@ function serializeQuestion(originalQuestion, newQuestionAttributes, questionStri
 }
 
 function serializeAnswers(originalChoices, newChoiceAttributes, oldAnswers,
-  correctFeedback, incorrectFeedback
+  correctFeedback, incorrectFeedback, language
 ) {
   const region = _.get(_.values(originalChoices), '[0].blankId');
   const correctId = _.findKey(newChoiceAttributes, choice => choice.isCorrect)
@@ -76,7 +86,7 @@ function serializeAnswers(originalChoices, newChoiceAttributes, oldAnswers,
   let correctAnswer = {
     id: _.get(_.find(oldAnswers, { genusTypeId: genusTypes.answer.rightAnswer }), 'id'),
     genusTypeId: genusTypes.answer.rightAnswer,
-    feedback: _.get(correctFeedback, 'text'),
+    feedback: languageText(_.get(correctFeedback, 'text'), language),
     choiceIds: [],
     fileIds: _.get(correctFeedback, 'fileIds'),
     region,
@@ -84,17 +94,13 @@ function serializeAnswers(originalChoices, newChoiceAttributes, oldAnswers,
   let incorrectAnswer = {
     id: _.get(_.find(oldAnswers, { genusTypeId: genusTypes.answer.wrongAnswer }), 'id'),
     genusTypeId: genusTypes.answer.wrongAnswer,
-    feedback: _.get(incorrectFeedback, 'text'),
-    choiceIds: [],
+    feedback: languageText(_.get(incorrectFeedback, 'text'), language),
     fileIds: _.get(incorrectFeedback, 'fileIds'),
-    region,
   };
 
   _.each(originalChoices, (choice) => {
     if (choice.id === correctId) {
       correctAnswer.choiceIds.push(choice.id);
-    } else {
-      incorrectAnswer.choiceIds.push(choice.id);
     }
   });
 
@@ -109,11 +115,16 @@ function serializeAnswers(originalChoices, newChoiceAttributes, oldAnswers,
 export default function movableFillBlank(originalItem, newItemAttributes) {
   const newItem = baseSerializer(originalItem, newItemAttributes);
 
-  const { question } = newItemAttributes;
+  const { question, language } = newItemAttributes;
   if (question) {
     newItem.question = {
       ...newItem.question,
-      ...serializeQuestion(originalItem.question, question, newItem.question.questionString)
+      ...serializeQuestion(
+          originalItem.question,
+          question,
+          newItem.question.questionString,
+          language
+        )
     };
     if (question.choices || question.correctFeedback || question.incorrectFeedback) {
       newItem.answers = serializeAnswers(
@@ -121,7 +132,8 @@ export default function movableFillBlank(originalItem, newItemAttributes) {
         question.choices,
         _.get(originalItem, 'originalItem.answers'),
         _.get(question, 'correctFeedback'),
-        _.get(question, 'incorrectFeedback')
+        _.get(question, 'incorrectFeedback'),
+        language,
       );
     }
   }

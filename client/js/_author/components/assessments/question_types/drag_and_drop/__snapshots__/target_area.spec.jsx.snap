@@ -13,16 +13,17 @@ ShallowWrapper {
 >
     <targetMenu
         addByRegion={[Function]}
-        addType={null}
+        addMenu={null}
         hasTarget={false}
         id={undefined}
         openModal={[Function]}
         toggleAdd={[Function]}
-        toggleVisible={undefined}
+        toggleVisible={[Function]}
         visibleZones={undefined}
     />
     <TargetZone
         editZone={[Function]}
+        language="639-2%3AENG%40ISO"
         openModal={[Function]}
         target={Object {}}
         zones={Object {}}
@@ -44,16 +45,17 @@ ShallowWrapper {
 >
       <targetMenu
             addByRegion={[Function]}
-            addType={null}
+            addMenu={null}
             hasTarget={false}
             id={undefined}
             openModal={[Function]}
             toggleAdd={[Function]}
-            toggleVisible={undefined}
+            toggleVisible={[Function]}
             visibleZones={undefined}
       />
       <TargetZone
             editZone={[Function]}
+            language="639-2%3AENG%40ISO"
             openModal={[Function]}
             target={Object {}}
             zones={Object {}}
@@ -79,6 +81,7 @@ ShallowWrapper {
       "_currentElement": <TargetArea
         editZone={[Function]}
         images={Object {}}
+        language="639-2%3AENG%40ISO"
         loadingMedia={false}
         question={
                 Object {
@@ -86,6 +89,7 @@ ShallowWrapper {
                         "zones": Object {},
                       }
         }
+        setVisible={[Function]}
         uploadMedia={[Function]}
 />,
       "_debugID": 1,
@@ -97,16 +101,19 @@ ShallowWrapper {
         "props": Object {
           "editZone": [Function],
           "images": Object {},
+          "language": "639-2%3AENG%40ISO",
           "loadingMedia": false,
           "question": Object {
             "target": Object {},
             "zones": Object {},
           },
+          "setVisible": [Function],
           "uploadMedia": [Function],
         },
         "refs": Object {},
         "state": Object {
-          "add": null,
+          "addMenu": null,
+          "addType": null,
           "showModal": false,
         },
         "updater": Object {
@@ -132,16 +139,17 @@ ShallowWrapper {
 >
           <targetMenu
                     addByRegion={[Function]}
-                    addType={null}
+                    addMenu={null}
                     hasTarget={false}
                     id={undefined}
                     openModal={[Function]}
                     toggleAdd={[Function]}
-                    toggleVisible={undefined}
+                    toggleVisible={[Function]}
                     visibleZones={undefined}
           />
           <TargetZone
                     editZone={[Function]}
+                    language="639-2%3AENG%40ISO"
                     openModal={[Function]}
                     target={Object {}}
                     zones={Object {}}
@@ -163,16 +171,17 @@ ShallowWrapper {
 >
           <targetMenu
                     addByRegion={[Function]}
-                    addType={null}
+                    addMenu={null}
                     hasTarget={false}
                     id={undefined}
                     openModal={[Function]}
                     toggleAdd={[Function]}
-                    toggleVisible={undefined}
+                    toggleVisible={[Function]}
                     visibleZones={undefined}
           />
           <TargetZone
                     editZone={[Function]}
+                    language="639-2%3AENG%40ISO"
                     openModal={[Function]}
                     target={Object {}}
                     zones={Object {}}
@@ -202,6 +211,7 @@ ShallowWrapper {
   "unrendered": <TargetArea
     editZone={[Function]}
     images={Object {}}
+    language="639-2%3AENG%40ISO"
     loadingMedia={false}
     question={
         Object {
@@ -209,6 +219,7 @@ ShallowWrapper {
             "zones": Object {},
           }
     }
+    setVisible={[Function]}
     uploadMedia={[Function]}
 />,
 }

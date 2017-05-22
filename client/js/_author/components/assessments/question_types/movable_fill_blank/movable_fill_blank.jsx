@@ -26,11 +26,13 @@ class MovableFillBlank extends React.Component {
     localizeStrings: React.PropTypes.func.isRequired,
     isActive: React.PropTypes.bool,
     activeChoice: React.PropTypes.string,
+    language: React.PropTypes.string.isRequired,
   };
 
   render() {
     const { question, id } = this.props.item;
     const strings = this.props.localizeStrings('movableFillBlank');
+
     return (
       <div>
         <div className="au-c-question__answers au-c-fill-in-the-blank__answers">
@@ -38,12 +40,13 @@ class MovableFillBlank extends React.Component {
             {
               _.map(_.orderBy(question.choices, 'order'), choice => (
                 <Option
-                  key={`assessmentChoice_${choice.id}`}
+                  key={`assessmentChoice_${choice.id}_${this.props.language}`}
                   {...choice}
                   updateChoice={newChoice => this.props.updateChoice(id, choice.id, newChoice)}
-                  deleteChoice={() => this.props.deleteChoice(choice)}
+                  deleteChoice={() => this.props.deleteChoice({ id: choice.id })}
                   setActiveChoice={this.props.selectChoice}
                   isActive={this.props.isActive && choice.id === this.props.activeChoice}
+                  language={this.props.language}
                 />
               ))
             }
@@ -56,6 +59,7 @@ class MovableFillBlank extends React.Component {
         </div>
         <div className="au-c-question__feedback">
           <Feedback
+            language={this.props.language}
             updateItem={this.props.updateItem}
             feedbackType="correctFeedback"
             feedback={question.correctFeedback}
@@ -63,6 +67,7 @@ class MovableFillBlank extends React.Component {
             bankId={this.props.item.bankId}
           />
           <Feedback
+            language={this.props.language}
             updateItem={this.props.updateItem}
             feedbackType="incorrectFeedback"
             feedback={question.incorrectFeedback}

@@ -1,6 +1,7 @@
 import React          from 'react';
 import { shallow }    from 'enzyme';
 import TargetArea     from './target_area';
+import { languages }  from '../../../../../constants/language_types';
 
 describe('target_area component', () => {
   let props;
@@ -19,7 +20,9 @@ describe('target_area component', () => {
         zones: {},
       },
       uploadMedia: () => { uploadedMedia = true; },
+      setVisible: () => {},
       editZone: () => { zoneNew = true; },
+      language: languages.languageTypeId.english,
     };
     result = shallow(<TargetArea {...props} />);
   });

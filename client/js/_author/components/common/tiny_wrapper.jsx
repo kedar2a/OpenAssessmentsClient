@@ -1,5 +1,5 @@
 import React   from 'react';
-import TinyMCE from 'react-tinymce';
+import TinyMCE from 'atomic-react-tinymce';
 
 import 'tinymce';
 import 'tinymce/themes/modern/theme';
@@ -13,7 +13,7 @@ import 'tinymce/plugins/charmap/plugin';
 import 'tinymce/plugins/lists/plugin';
 import 'tinymce/plugins/table/plugin';
 
-import guid    from '../../../utils/guid';
+import guid             from '../../../utils/guid';
 
 // TODO: figure out how to localize this.
 export default class TinyWrapper extends React.Component {
@@ -23,6 +23,7 @@ export default class TinyWrapper extends React.Component {
     onBlur: React.PropTypes.func.isRequired,
     onFocus: React.PropTypes.func.isRequired,
     openModal: React.PropTypes.func.isRequired,
+    onChange: React.PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -41,7 +42,8 @@ export default class TinyWrapper extends React.Component {
   tinyMCEConfig() {
     // Whenever you add a plugin, make sure that it is imported above.
     return {
-      fixed_toolbar_container: `#${this.id}`,
+      closed: /^(br|hr|input|meta|img|link|param|area|source|track)$/,
+      fixed_toolbar_container: `#toolbar-${this.props.editorKey || ''}${this.id}`,
       skin: false,
       menubar: false,
       statusbar: false,
@@ -83,13 +85,19 @@ export default class TinyWrapper extends React.Component {
     return (
       <div>
         <label htmlFor={`${this.id}-tinymce`} />
-        <div id={this.id} />
+        <div id={`toolbar-${this.props.editorKey || ''}${this.id}`} />
         <TinyMCE
           id={`${this.id}-tinymce`}
           content={this.props.text}
           config={this.tinyMCEConfig()}
-          onBlur={(e) => { this.props.onBlur(e.target.getContent(), e.target.isDirty()); }}
+          onBlur={(e) => {
+            const content = e.target.getContent();
+            const isChanged =
+              e.target.isDirty() || content !== this.props.text;
+            this.props.onBlur(content, isChanged);
+          }}
           onFocus={this.props.onFocus}
+          onChange={e => this.props.onChange(e.target.getContent())}
         />
       </div>
     );

@@ -3,8 +3,9 @@
 <title>Open Assessments</title>
 <meta name="description" content="Open Assessments">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <script type="text/javascript">
- function getCookie(cname) {
+   function getCookie(cname) {
     var name = cname + "=";
     var ca = document.cookie.split(';');
     for (var i = 0; i < ca.length; i++) {
@@ -14,6 +15,7 @@
     }
     return "";
   }
+
   window.DEFAULT_SETTINGS = {
     user_id      : 0,
     max_attempts : 1,
@@ -22,14 +24,12 @@
     api_url      : "https://clixserver:8080/api/v1",
     bank:          "assessment.Bank%3A577fcf7cc89cd90cbd5616fa%40ODL.MIT.EDU",
     assessment_offered_id: "assessment.AssessmentOffered%3A58824256c89cd9741bab8942%40ODL.MIT.EDU",
-    // lambda_url: '/assessment/hierarchies/nodes/assessment.Bank%3A57b952a8ed849b7a42085916%40ODL.MIT.EDU/children?descendants=6&display_names',
+    // lambda_url: 'https://4h8n6sg95j.execute-api.us-east-1.amazonaws.com/dev/proxy',
     lambda_url: 'https://clixserver:8080/api/v1/assessment/hierarchies/nodes/assessment.Bank%3A57e26c90b3fcec4c84a63f25%40ODL.MIT.EDU/children?descendants=6&display_names',
     assessment_kind: "SUMMATIVE",
     qBankHost: 'https://clixserver:8080/api/v1',
     assessmentPlayerUrl: 'https://clixserver/oac/',
-    // editableBankId: 'assessment.Bank%3A588f91d7ed849b7e939a1757%40ODL.MIT.EDU',
     editableBankId: 'assessment.Bank%3A588f924191d0d930f5a56c2a%40ODL.MIT.EDU',
-    // publishedBankId: 'assessment.Bank%3A588f91c9ed849b7e939a1756%40ODL.MIT.EDU',
     publishedBankId: 'assessment.Bank%3A588f923591d0d930f5a56c29%40ODL.MIT.ED',
     baseEmbedUrl: 'https://clixserver/oac/?unlock_next=ON_CORRECT&api_url=https://clixserver:8080/api/v1',
     one_item_per_page: 'assessment-offered-genus-type%3Asingle-item%40ODL.MIT.EDU',
@@ -37,6 +37,7 @@
     questions_per_section:1,
     questions_per_page:1,
     unlock_next: "ON_CORRECT",
+    unlock_prev: "ALWAYS",
     locale: "en",
     audio_recorder_timeout: 100,
   };

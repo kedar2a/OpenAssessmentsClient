@@ -26,6 +26,8 @@ export class DragAndDrop extends React.Component {
     updateChoice: React.PropTypes.func.isRequired,
     localizeStrings: React.PropTypes.func.isRequired,
     loadingMedia: React.PropTypes.bool,
+    isActive: React.PropTypes.bool,
+    language: React.PropTypes.string.isRequired,
   };
 
   constructor() {
@@ -40,7 +42,8 @@ export class DragAndDrop extends React.Component {
       this.props.item.id,
       `question.${where}`,
       metadata,
-      newMedia
+      newMedia,
+      this.props.language
     );
   }
 
@@ -49,7 +52,7 @@ export class DragAndDrop extends React.Component {
 
     const strings = this.props.localizeStrings('dragAndDrop');
     return (
-      <div>
+      <div style={{ display: this.props.isActive ? 'block' : 'none' }}>
         <TargetArea
           id={id}
           question={question}
@@ -61,6 +64,7 @@ export class DragAndDrop extends React.Component {
           setVisible={visibleZones => this.props.updateItem({ question: { visibleZones } }, true)}
           editZone={(zoneId, attributes) =>
             this.props.updateChoice(id, zoneId, attributes, null, 'zones')}
+          language={this.props.language}
 
         />
         <div className="au-c-drop-zone__answers__label">{strings.draggableAnswers}</div>
@@ -73,9 +77,11 @@ export class DragAndDrop extends React.Component {
           images={this.props.images}
           uploadMedia={(file, where, metadata, newMedia) =>
             this.uploadMedia(file, where, metadata, newMedia)}
+          language={this.props.language}
         />
         <div className="au-c-question__feedback">
           <Feedback
+            language={this.props.language}
             updateItem={this.props.updateItem}
             feedbackType="correctFeedback"
             feedback={question.correctFeedback}
@@ -83,6 +89,7 @@ export class DragAndDrop extends React.Component {
             bankId={bankId}
           />
           <Feedback
+            language={this.props.language}
             updateItem={this.props.updateItem}
             feedbackType="incorrectFeedback"
             feedback={question.incorrectFeedback}

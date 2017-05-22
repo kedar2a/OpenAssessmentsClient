@@ -1,6 +1,6 @@
 import _                         from 'lodash';
 import baseSerializer            from './base';
-import { scrub }                 from '../../serializer_utils';
+import { scrub, languageText }   from '../../serializer_utils';
 import genusTypes                from '../../../../constants/genus_types';
 
 function buildImageTag(url, alt, fileIds) {
@@ -15,23 +15,27 @@ function buildImageTag(url, alt, fileIds) {
   return `<img src="${resolvedUrl}" alt="${alt}"/>`;
 }
 
-function serializeTargets(originalTarget, newTarget, fileIds) {
+function serializeTargets(originalTarget, newTarget, fileIds, language) {
   if (!newTarget) { return null; }
+  const originalImage = _.get(originalTarget, `images[${language}]`, '');
+  const text = buildImageTag(
+    _.get(newTarget, 'text', originalImage),
+    _.get(newTarget, 'altText'),
+    fileIds
+  );
   return [scrub({
     id: _.get(originalTarget, 'id'),
-    text: buildImageTag(
-      _.get(newTarget, 'text', originalTarget.image),
-      _.get(newTarget, 'altText'),
-      fileIds
-    ),
+    text: languageText(text, language),
     name: _.get(newTarget, 'altText'),
     dropBehaviorType: genusTypes.target.reject,
   })];
 }
 
-function serializeZones(originalZones, newZones, targetId, visible) {
+function serializeZones(originalZones, newZones, targetId, visible, language) {
   if (!newZones && _.isNil(visible)) { return null; }
   const zones = _.map(originalZones, (zone) => {
+    const originalLabel = _.get(zones, `labels[${language}].text`, '');
+
     const newZone = _.get(newZones, `[${zone.id}]`);
     return scrub({
       id: _.get(zone, 'id'),
@@ -44,7 +48,7 @@ function serializeZones(originalZones, newZones, targetId, visible) {
       },
       reuse: 0, // an integer to indicate how many times something can be re-used 0 is infinite
       dropBehaviorType: genusTypes.zone[_.get(newZone, 'type', zone.type)],
-      name: _.get(newZone, 'label', zone.label),
+      name: languageText(_.get(newZone, 'label', originalLabel), language),
       visible,
       containerId: targetId,
       // description: 'left of ball'   // Dunno what this is for
@@ -72,62 +76,74 @@ function serializeZones(originalZones, newZones, targetId, visible) {
   return zones;
 }
 
-function serializeDroppables(originalDroppables, newDroppables, fileIds) {
+function serializeDroppables(originalDroppables, newDroppables, fileIds, language) {
   if (!newDroppables) { return null; }
   const droppables =  _.map(originalDroppables, (droppable) => {
-    const newDroppable = newDroppables[droppable.id];
+    const newDroppable = _.get(newDroppables, `[${droppable.id}]`, {});
+    const images = _.merge(
+      {}, droppable.images, newDroppable.images
+    );
+    const labels = _.merge({}, droppable.labels, newDroppable.labels);
+    const image = newDroppable.text || _.get(images, `${language}.text`, '');
+    const label = _.get(labels, `${language}.text`, '');
+
+    const text = buildImageTag(image, label, fileIds);
     return scrub({
       id: droppable.id,
-      text: buildImageTag(
-        _.get(newDroppable, 'image', droppable.image),
-        _.get(newDroppable, 'label', droppable.label),
-        fileIds
-      ),
+      text: languageText(text, language),
       dropBehaviorType: genusTypes.zone[_.get(newDroppable, 'type', droppable.type)],
-      name: _.get(newDroppable, 'label', droppable.label),
+      name: languageText(label, language),
       reuse: 1,
       delete: _.get(newDroppable, 'delete'),
     });
   });
 
   if (newDroppables && newDroppables.new) {
+    const newText = buildImageTag(newDroppables.new.text, newDroppables.new.altText, fileIds);
     droppables.push({
-      text: buildImageTag(newDroppables.new.text, newDroppables.new.altText, fileIds),
+      text: languageText(newText, language),
       dropBehaviorType: genusTypes.zone.snap,
       reuse: 1,
     });
   }
-
   return droppables;
 }
 
-function serializeQuestion(originalQuestion, newQuestionAttributes) {
+function serializeQuestion(originalQuestion, newQuestionAttributes, language) {
   const fileIds = { ...originalQuestion.fileIds, ...newQuestionAttributes.fileIds };
   const newQuestion = {
-    targets: serializeTargets(originalQuestion.target, newQuestionAttributes.target, fileIds),
+    targets: serializeTargets(
+      originalQuestion.target,
+      newQuestionAttributes.target,
+      fileIds,
+      language
+    ),
     droppables: serializeDroppables(
       originalQuestion.dropObjects,
       newQuestionAttributes.dropObjects,
-      fileIds
+      fileIds,
+      language
     ),
     zones: serializeZones(
       originalQuestion.zones,
       newQuestionAttributes.zones,
       _.get(originalQuestion, 'target.id'),
-      _.get(newQuestionAttributes, 'visibleZones')
+      _.get(newQuestionAttributes, 'visibleZones'),
+      language
     ),
   };
+
   return scrub(newQuestion);
 }
 
-function serializeAnswers(
-  oldDropObjects, dropObjects, oldAnswers, correctFeedback, incorrectFeedback) {
+function serializeAnswers(oldDropObjects, dropObjects, oldAnswers,
+  correctFeedback, incorrectFeedback, language) {
   const answers = [];
 
   let correctAnswer = {
     id: _.get(_.find(oldAnswers, { genusTypeId: genusTypes.answer.rightAnswer }), 'id'),
     genusTypeId: genusTypes.answer.rightAnswer,
-    feedback: _.get(correctFeedback, 'text'),
+    feedback: languageText(_.get(correctFeedback, 'text'), language),
     fileIds: _.get(correctFeedback, 'fileIds'),
     zoneConditions: scrub(_.map(oldDropObjects, (object) => {
       const zoneId = _.get(dropObjects, `[${object.id}].correctZone`, object.correctZone);
@@ -143,7 +159,7 @@ function serializeAnswers(
   let incorrectAnswer = {
     id: _.get(_.find(oldAnswers, { genusTypeId: genusTypes.answer.wrongAnswer }), 'id'),
     genusTypeId: genusTypes.answer.wrongAnswer,
-    feedback: _.get(incorrectFeedback, 'text'),
+    feedback: languageText(_.get(incorrectFeedback, 'text'), language),
     fileIds: _.get(incorrectFeedback, 'fileIds'),
     zoneConditions: [],
   };
@@ -159,11 +175,11 @@ function serializeAnswers(
 export default function dragAndDrop(originalItem, newItemAttributes) {
   const newItem = baseSerializer(originalItem, newItemAttributes);
 
-  const { question } = newItemAttributes;
+  const { question, language } = newItemAttributes;
   if (question) {
     newItem.question = {
       ...newItem.question,
-      ...serializeQuestion(originalItem.question, question)
+      ...serializeQuestion(originalItem.question, question, language)
     };
   }
 
@@ -176,7 +192,8 @@ export default function dragAndDrop(originalItem, newItemAttributes) {
       question.dropObjects,
       _.get(originalItem, 'originalItem.answers'),
       _.get(question, 'correctFeedback'),
-      _.get(question, 'incorrectFeedback')
+      _.get(question, 'incorrectFeedback'),
+      language
     );
   }
 

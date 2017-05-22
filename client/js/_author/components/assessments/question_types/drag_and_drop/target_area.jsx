@@ -17,12 +17,14 @@ export default class TargetArea extends React.Component {
     uploadMedia: React.PropTypes.func.isRequired,
     setVisible: React.PropTypes.func.isRequired,
     editZone: React.PropTypes.func.isRequired,
+    language: React.PropTypes.string,
   };
 
   constructor() {
     super();
     this.state = {
-      add: null,
+      addType: null,
+      addMenu: null,
       showModal: false,
     };
   }
@@ -32,7 +34,7 @@ export default class TargetArea extends React.Component {
   }
 
   selectImage(media, metadata, newMedia) {
-    const type = this.state.add;
+    const type = this.state.addType;
     if (type === 'snap' || type === 'drop') {
       const img = new Image();
       img.src = URL.createObjectURL(media);
@@ -50,15 +52,13 @@ export default class TargetArea extends React.Component {
     }
     this.setState({
       showModal: false,
-      add: null
+      addType: null
     });
   }
 
-  addByRegion() {
-    this.props.editZone('new', {
-      type: this.state.add,
-    });
-    this.setState({ add: null });
+  addByRegion(type) {
+    this.props.editZone('new', { type });
+    this.setState({ addMenu: null });
   }
 
   render() {
@@ -67,10 +67,10 @@ export default class TargetArea extends React.Component {
         <Menu
           id={this.props.question.id}
           hasTarget={!_.isEmpty(this.props.question.target)}
-          openModal={() => this.setState({ showModal: true })}
-          addType={this.state.add}
-          toggleAdd={type => this.setState({ add: this.state.add !== type ? type : null })}
-          addByRegion={() => this.addByRegion()}
+          openModal={type => this.setState({ showModal: true, addType: type })}
+          addMenu={this.state.addMenu}
+          toggleAdd={type => this.setState({ addMenu: this.state.addMenu !== type ? type : null })}
+          addByRegion={type => this.addByRegion(type)}
           toggleVisible={this.props.setVisible}
           visibleZones={this.props.visibleZones}
         />
@@ -79,6 +79,7 @@ export default class TargetArea extends React.Component {
           zones={this.props.question.zones}
           editZone={this.props.editZone}
           openModal={() => this.setState({ showModal: true })}
+          language={this.props.language}
         />
         <MediaModal
           isOpen={this.state.showModal}
@@ -87,7 +88,7 @@ export default class TargetArea extends React.Component {
           media={this.props.images}
           mediaType={'img'}
           insertMedia={(media, metadata, newMedia) => this.selectImage(media, metadata, newMedia)}
-          uploadOnly={!!this.state.add}
+          uploadOnly={!!this.state.addType}
         />
       </div>
     );

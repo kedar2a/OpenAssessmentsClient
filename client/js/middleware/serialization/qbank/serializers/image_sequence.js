@@ -1,48 +1,61 @@
 import _                         from 'lodash';
 import baseSerializer            from './base';
-import { scrub }                 from '../../serializer_utils';
+import { scrub, languageText }   from '../../serializer_utils';
 import genusTypes                from '../../../../constants/genus_types';
 import guid                      from '../../../../utils/guid';
 
-function serializeChoices(originalChoices, newChoiceAttributes) {
+function serializeChoices(originalChoices, newChoiceAttributes, language) {
   const choices = _.map(originalChoices, (choice) => {
     const updateValues = newChoiceAttributes[choice.id];
     const newOrder = _.get(updateValues, 'order');
-    const labelText = _.get(updateValues, 'labelText', choice.labelText);
-    const imageSrc = choice.text;
-    const imageAlt = choice.altText;
+    const originalLabelText = _.get(choice, `texts[${language}].labelText`, '');
+    const originalImageSrc = _.get(choice, `texts[${language}].text`, '');
+    const originalAltText = _.get(choice, `texts[${language}].altText`, '');
+
+    const imageSrc = _.get(updateValues, 'text', originalImageSrc);
+    const labelText = _.get(updateValues, 'labelText', originalLabelText);
+    const imageAlt = _.get(updateValues, 'altText', originalAltText);
     const text = `<p>${labelText}</p><img src='${imageSrc}' alt='${imageAlt}'>`;
+
     return {
       id: choice.id,
-      text,
+      text: languageText(text, language),
       order: _.isNil(newOrder) ? choice.order : newOrder,
       delete: _.get(updateValues, 'delete'),
     };
   });
 
   if (newChoiceAttributes.new) {
+    const text = `<p></p><img src='${newChoiceAttributes.new.text}' alt='${newChoiceAttributes.new.altText}'>`;
+
     choices.push({
       id: guid(),
-      text: `<p></p><img src='${newChoiceAttributes.new.text}' alt='${newChoiceAttributes.new.altText}'>`,
-      order: choices.length,
+      text: languageText(text, language),
+      order: choices.length
     });
   }
 
   return choices;
 }
 
-function serializeQuestion(originalQuestion, newQuestionAttributes) {
+function serializeQuestion(originalQuestion, newQuestionAttributes, language) {
   const newQuestion = {
     choices: null,
   };
   if (newQuestionAttributes.choices) {
-    newQuestion.choices = serializeChoices(originalQuestion.choices, newQuestionAttributes.choices);
+    newQuestion.choices = serializeChoices(
+      originalQuestion.choices,
+      newQuestionAttributes.choices,
+      language
+    );
   }
 
   return scrub(newQuestion);
 }
 
-function serializeAnswers(choices, newChoiceAttributes, oldAnswers, correctFeedback, incorrectFeedback) {
+function serializeAnswers(choices, newChoiceAttributes, oldAnswers,
+  correctFeedback, incorrectFeedback, language) {
+
   const answers = [];
   const updatedChoices = _.cloneDeep(choices);
   _.forEach(newChoiceAttributes, (choice, id) => {
@@ -52,7 +65,7 @@ function serializeAnswers(choices, newChoiceAttributes, oldAnswers, correctFeedb
   let correctAnswer = {
     id: _.get(_.find(oldAnswers, { genusTypeId: genusTypes.answer.rightAnswer }), 'id'),
     genusTypeId: genusTypes.answer.rightAnswer,
-    feedback: _.get(correctFeedback, 'text'),
+    feedback: languageText(_.get(correctFeedback, 'text'), language),
     type: genusTypes.answer.multipleAnswer,
     choiceIds: _.map(_.orderBy(_.filter(updatedChoices, choice => choice.order !== ''), 'order'), 'id'),
     fileIds: _.get(correctFeedback, 'fileIds'),
@@ -60,7 +73,7 @@ function serializeAnswers(choices, newChoiceAttributes, oldAnswers, correctFeedb
   let incorrectAnswer = {
     id: _.get(_.find(oldAnswers, { genusTypeId: genusTypes.answer.wrongAnswer }), 'id'),
     genusTypeId: genusTypes.answer.wrongAnswer,
-    feedback: _.get(incorrectFeedback, 'text'),
+    feedback: languageText(_.get(incorrectFeedback, 'text'), language),
     type: genusTypes.answer.multipleAnswer,
     choiceIds: [],
     fileIds: _.get(incorrectFeedback, 'fileIds'),
@@ -77,11 +90,11 @@ function serializeAnswers(choices, newChoiceAttributes, oldAnswers, correctFeedb
 
 export default function imageSequenceSerializer(originalItem, newItemAttributes) {
   const newItem = baseSerializer(originalItem, newItemAttributes);
-  const { question } = newItemAttributes;
+  const { question, language } = newItemAttributes;
   if (question) {
     newItem.question = {
       ...newItem.question,
-      ...serializeQuestion(originalItem.question, question)
+      ...serializeQuestion(originalItem.question, question, language)
     };
 
     if (question.choices || question.correctFeedback || question.incorrectFeedback) {
@@ -90,9 +103,11 @@ export default function imageSequenceSerializer(originalItem, newItemAttributes)
         question.choices,
         _.get(originalItem, 'originalItem.answers'),
         _.get(question, 'correctFeedback'),
-        _.get(question, 'incorrectFeedback')
+        _.get(question, 'incorrectFeedback'),
+        language
       );
     }
   }
+
   return scrub(newItem);
 }
