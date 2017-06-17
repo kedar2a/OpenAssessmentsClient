@@ -7,7 +7,7 @@ class RecorderTimer extends React.Component {
     localizedStrings: React.PropTypes.object.isRequired,
 
     // Maximum audio recording length in seconds
-    timeout: React.PropTypes.number,
+    audioTimeout: React.PropTypes.number,
   };
 
   constructor() {
@@ -16,7 +16,8 @@ class RecorderTimer extends React.Component {
       minsCt       : 0,
       secsCt       : 0,
       secsStringCt : '00',
-      prcntCt      : 0
+      prcntCt      : 0,
+      timerCt      : 0,
     };
   }
 
@@ -30,7 +31,8 @@ class RecorderTimer extends React.Component {
 
   tick() {
     this.setState(prevState => ({
-      prcntCt: Math.round(((prevState.prcntCt + 1) / this.props.timeout) * 100),
+      prcntCt: Math.floor(((this.state.timerCt) / this.props.audioTimeout) * 100),
+      timerCt: prevState.timerCt + 1,
     }));
 
     if (this.state.secsCt < 9) {
@@ -64,6 +66,7 @@ class RecorderTimer extends React.Component {
         secsCt       : 0,
         secsStringCt : '00',
         prcntCt      : 0,
+        timerCt      : 0,
       }
       );
   }
