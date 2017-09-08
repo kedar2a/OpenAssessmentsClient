@@ -12,11 +12,14 @@ old_oac_oat_folder_path=/softwares/oac-oat-backup/"$foldername"
 mkdir -p "$old_oac_oat_folder_path"
 
 echo -e "\n[3/4]: Taking backup of existing oac and oat at: \"$old_oac_oat_folder_path\""
-cp -r /softwares/oat /softwares/oac "$old_oac_oat_folder_path"
+# cp -r /softwares/oat /softwares/oac "$old_oac_oat_folder_path"
+rsync -avzPh /softwares/oat /softwares/oac "$old_oac_oat_folder_path"
 
 echo -e "\n[4/4]: Deploying newly built oac oat"
-cp -r build/prod/* /softwares/oat/
-cp -r build/prod/* /softwares/oac/
+# cp -r build/prod/* /softwares/oat/
+rsync -avzPh build/prod/* /softwares/oat/
+# cp -r build/prod/* /softwares/oac/
+rsync -avzPh build/prod/* /softwares/oac/
 
 mv /softwares/oat/author.html /softwares/oat/index.html
 
