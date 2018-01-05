@@ -43,7 +43,7 @@ export class BankAssessment extends React.Component {
     }
   }
 
-  selectItem() {
+  selectItem = () => {
     const { assessment } = this.props;
     if (assessment.isPublished) {
       appHistory.push(`banks/${assessment.bankId}/assessments/${assessment.id}/preview`);
@@ -55,6 +55,8 @@ export class BankAssessment extends React.Component {
   render() {
     const { assessment } = this.props;
     const displayName = _.get(assessment, 'displayName.text');
+    const publishedStatus = assessment.isPublished;
+    const publishedPhase = publishedStatus ? 'Published' : 'Unpublished';
     // we pass empty functions to list item so that you cant open an assessment while its
     // being deleted.
     if (this.state.deleting) {
@@ -74,11 +76,17 @@ export class BankAssessment extends React.Component {
       <ListItem
         {...this.props}
         bank={assessment}
-        selectItem={() => this.selectItem()}
+        selectItem={() => {}}
+        ariaLabel={`${publishedPhase} Assessment: ${displayName}`}
         onFocus={this.props.onFocus}
       >
         <td>
-          <i className="material-icons">description</i>
+          <i
+            aria-label="Assessment"
+            className="material-icons"
+          >
+            description
+          </i>
         </td>
         <td>{displayName}</td>
         <td>
@@ -93,7 +101,10 @@ export class BankAssessment extends React.Component {
         <td>
           <div className="au-c-table__icons">
             <EmbedButton {...this.props} />
-            <EditButton {...this.props} />
+            <EditButton
+              {...this.props}
+              selectItem={this.selectItem}
+            />
             <PreviewButton {...this.props} />
             <DeleteButton
               {...this.props}

@@ -9,6 +9,7 @@ ShallowWrapper {
   },
   "length": 1,
   "node": <ListItem
+    ariaLabel="Unpublished Assessment: Spec Name"
     assessment={
         Object {
             "bankId": "",
@@ -39,6 +40,7 @@ ShallowWrapper {
 >
     <td>
         <i
+            aria-label="Assessment"
             className="material-icons"
         >
             description
@@ -101,6 +103,7 @@ ShallowWrapper {
                 focused={false}
                 getEmbedCode={[Function]}
                 onFocus={[Function]}
+                selectItem={[Function]}
                 togglePublishAssessment={[Function]}
             />
             <PreviewButton
@@ -144,6 +147,7 @@ ShallowWrapper {
 </ListItem>,
   "nodes": Array [
     <ListItem
+      ariaLabel="Unpublished Assessment: Spec Name"
       assessment={
             Object {
                   "bankId": "",
@@ -174,6 +178,7 @@ ShallowWrapper {
 >
       <td>
             <i
+                  aria-label="Assessment"
                   className="material-icons"
             >
                   description
@@ -236,6 +241,7 @@ ShallowWrapper {
                         focused={false}
                         getEmbedCode={[Function]}
                         onFocus={[Function]}
+                        selectItem={[Function]}
                         togglePublishAssessment={[Function]}
                   />
                   <PreviewButton
@@ -325,6 +331,7 @@ ShallowWrapper {
           "togglePublishAssessment": [Function],
         },
         "refs": Object {},
+        "selectItem": [Function],
         "state": Object {
           "deleting": false,
         },
@@ -347,6 +354,7 @@ ShallowWrapper {
       "_pendingStateQueue": null,
       "_renderedComponent": NoopInternalComponent {
         "_currentElement": <ListItem
+          ariaLabel="Unpublished Assessment: Spec Name"
           assessment={
                     Object {
                               "bankId": "",
@@ -377,6 +385,7 @@ ShallowWrapper {
 >
           <td>
                     <i
+                              aria-label="Assessment"
                               className="material-icons"
                     >
                               description
@@ -439,6 +448,7 @@ ShallowWrapper {
                                         focused={false}
                                         getEmbedCode={[Function]}
                                         onFocus={[Function]}
+                                        selectItem={[Function]}
                                         togglePublishAssessment={[Function]}
                               />
                               <PreviewButton
@@ -482,6 +492,7 @@ ShallowWrapper {
 </ListItem>,
         "_debugID": 2,
         "_renderedOutput": <ListItem
+          ariaLabel="Unpublished Assessment: Spec Name"
           assessment={
                     Object {
                               "bankId": "",
@@ -512,6 +523,7 @@ ShallowWrapper {
 >
           <td>
                     <i
+                              aria-label="Assessment"
                               className="material-icons"
                     >
                               description
@@ -574,6 +586,7 @@ ShallowWrapper {
                                         focused={false}
                                         getEmbedCode={[Function]}
                                         onFocus={[Function]}
+                                        selectItem={[Function]}
                                         togglePublishAssessment={[Function]}
                               />
                               <PreviewButton

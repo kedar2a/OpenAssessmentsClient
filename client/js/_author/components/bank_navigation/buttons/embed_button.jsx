@@ -48,7 +48,12 @@ export default function EmbedButton(props) {
               onClick={e => e.stopPropagation()}
               onFocus={props.onFocus}
             >
-              <i className="material-icons">content_paste</i>
+              <i
+                aria-label="Copy iframe code"
+                className="material-icons"
+              >
+                content_paste
+              </i>
             </button>
           </CopyToClipboard>
         </div>

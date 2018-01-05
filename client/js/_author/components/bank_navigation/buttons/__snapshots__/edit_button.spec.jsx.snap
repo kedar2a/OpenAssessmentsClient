@@ -10,9 +10,12 @@ ShallowWrapper {
   "length": 1,
   "node": <button
     className="au-c-btn au-c-btn--square au-c-btn--table "
+    disabled={false}
+    onClick={undefined}
     onFocus={[Function]}
 >
     <i
+        aria-label="Edit assessment"
         className="material-icons"
     >
         edit
@@ -21,9 +24,12 @@ ShallowWrapper {
   "nodes": Array [
     <button
       className="au-c-btn au-c-btn--square au-c-btn--table "
+      disabled={false}
+      onClick={undefined}
       onFocus={[Function]}
 >
       <i
+            aria-label="Edit assessment"
             className="material-icons"
       >
             edit
@@ -78,9 +84,12 @@ ShallowWrapper {
       "_renderedComponent": NoopInternalComponent {
         "_currentElement": <button
           className="au-c-btn au-c-btn--square au-c-btn--table "
+          disabled={false}
+          onClick={undefined}
           onFocus={[Function]}
 >
           <i
+                    aria-label="Edit assessment"
                     className="material-icons"
           >
                     edit
@@ -89,9 +98,12 @@ ShallowWrapper {
         "_debugID": 2,
         "_renderedOutput": <button
           className="au-c-btn au-c-btn--square au-c-btn--table "
+          disabled={false}
+          onClick={undefined}
           onFocus={[Function]}
 >
           <i
+                    aria-label="Edit assessment"
                     className="material-icons"
           >
                     edit

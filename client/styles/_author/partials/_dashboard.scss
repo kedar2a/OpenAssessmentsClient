@@ -90,7 +90,7 @@
   }
 
   tr{
-    &:hover, &.focused{
+    &:hover, &:focus{
       td{
         background: $purple;
 
@@ -111,9 +111,6 @@
         &:nth-of-type(4){
 
         }
-      }
-      .au-c-table__icons{
-        @include display-flex;
       }
       .au-c-publish{
         background-color: $purple2;
@@ -185,7 +182,7 @@
 }
 
   .au-c-table__icons{
-    display: none;
+    @include display-flex;
     @include align-items(center);
     float: right;
   }
@@ -245,7 +242,7 @@
     @include transition(color 0.1s ease);
   }
 
-  &:hover{
+  &:hover, &:focus{
     background-color: $white;
 
     i{
