@@ -185,6 +185,82 @@ describe('item', () => {
       expect(subject.textContent).not.toContain('Incorrect answer');
     });
 
+    it('renders ART without tick mark when item is correct', () => {
+      question = {
+        question_type: 'audio_upload_question', // set question type
+        answers: [],
+        audioTimeout: 100
+      };
+      questionResult = { correct:true, feedback:'Correct answer' };
+      numQuestionsChecking = 0;
+      renderItem();
+      svgTest = TestUtils.scryRenderedDOMComponentsWithTag(result, 'svg'); // look for svg tag
+      expect(svgTest.length).toEqual(0); // expect no svg tag
+      expect(subject.textContent).toContain('Correct');
+      expect(subject.textContent).toContain('Correct answer');
+      expect(subject.textContent).not.toContain('Incorrect');
+      expect(subject.textContent).not.toContain('Incorrect answer');
+    });
+
+    it('renders file upload without tick mark when item is correct', () => {
+      question = {
+        question_type: 'file_upload_question', // set question type
+        answers: []
+      };
+      questionResult = {
+        correct:true,
+        feedback:'Correct answer',
+        answerIds: [{
+          name: 'my_file.txt'
+        }]
+      };
+      numQuestionsChecking = 0;
+      renderItem();
+      svgTest = TestUtils.scryRenderedDOMComponentsWithTag(result, 'svg'); // look for svg tag
+      expect(svgTest.length).toEqual(0); // expect no svg tag
+      expect(subject.textContent).toContain('Correct');
+      expect(subject.textContent).toContain('Correct answer');
+      expect(subject.textContent).not.toContain('Incorrect');
+      expect(subject.textContent).not.toContain('Incorrect answer');
+    });
+
+    it('renders MW sandbox without tick mark when item is correct', () => {
+      question = {
+        question_type: 'movable_words_sandbox', // set question type
+        answers: [],
+        audioTimeout: 100
+      };
+      questionResult = { correct:true, feedback:'Correct answer' };
+      numQuestionsChecking = 0;
+      renderItem();
+      svgTest = TestUtils.scryRenderedDOMComponentsWithTag(result, 'svg'); // look for svg tag
+      expect(svgTest.length).toEqual(0); // expect no svg tag
+      expect(subject.textContent).toContain('Correct');
+      expect(subject.textContent).toContain('Correct answer');
+      expect(subject.textContent).not.toContain('Incorrect');
+      expect(subject.textContent).not.toContain('Incorrect answer');
+    });
+
+    it('renders short answer without tick mark when item is correct', () => {
+      question = {
+        question_type: 'short_answer_question', // set question type
+        answers: [],
+        question_meta: {
+          expectedLength: 10,
+          expectedLines: 5
+        }
+      };
+      questionResult = { correct:true, feedback:'Correct answer' };
+      numQuestionsChecking = 0;
+      renderItem();
+      svgTest = TestUtils.scryRenderedDOMComponentsWithTag(result, 'svg'); // look for svg tag
+      expect(svgTest.length).toEqual(0); // expect no svg tag
+      expect(subject.textContent).toContain('Correct');
+      expect(subject.textContent).toContain('Correct answer');
+      expect(subject.textContent).not.toContain('Incorrect');
+      expect(subject.textContent).not.toContain('Incorrect answer');
+    });
+
     it('renders incorrect when item is incorrect', () => {
       questionResult = { correct:false, feedback:'Incorrect answer' };
       numQuestionsChecking = 0;
