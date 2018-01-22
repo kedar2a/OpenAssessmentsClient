@@ -139,6 +139,10 @@ export default class Item extends React.Component {
         switch (questionType) {
           case 'survey_question':
           case 'multiple_answer_survey_question':
+          case 'file_upload_question':
+          case 'audio_upload_question':
+          case 'movable_words_sandbox':
+          case 'short_answer_question':
             answerFeedback = (
               <div className="c-question-feedback  c-feedback--correct">
                 <div dangerouslySetInnerHTML={{ __html: questionResult.feedback }} />
