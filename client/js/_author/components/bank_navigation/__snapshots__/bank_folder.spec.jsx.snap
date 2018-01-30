@@ -9,6 +9,7 @@ ShallowWrapper {
   },
   "length": 1,
   "node": <ListItem
+    ariaLabel="Assessment catalog: Spec Name"
     bank={
         Object {
             "displayName": Object {
@@ -18,11 +19,13 @@ ShallowWrapper {
     }
     focused={false}
     getBankChildren={[Function]}
+    isClickable={true}
     onFocus={[Function]}
     selectItem={[Function]}
 >
     <td>
         <i
+            aria-label="Assessment catalog"
             className="material-icons"
         >
             folder
@@ -36,6 +39,7 @@ ShallowWrapper {
 </ListItem>,
   "nodes": Array [
     <ListItem
+      ariaLabel="Assessment catalog: Spec Name"
       bank={
             Object {
                   "displayName": Object {
@@ -45,11 +49,13 @@ ShallowWrapper {
       }
       focused={false}
       getBankChildren={[Function]}
+      isClickable={true}
       onFocus={[Function]}
       selectItem={[Function]}
 >
       <td>
             <i
+                  aria-label="Assessment catalog"
                   className="material-icons"
             >
                   folder
@@ -117,6 +123,7 @@ ShallowWrapper {
       "_pendingStateQueue": null,
       "_renderedComponent": NoopInternalComponent {
         "_currentElement": <ListItem
+          ariaLabel="Assessment catalog: Spec Name"
           bank={
                     Object {
                               "displayName": Object {
@@ -126,11 +133,13 @@ ShallowWrapper {
           }
           focused={false}
           getBankChildren={[Function]}
+          isClickable={true}
           onFocus={[Function]}
           selectItem={[Function]}
 >
           <td>
                     <i
+                              aria-label="Assessment catalog"
                               className="material-icons"
                     >
                               folder
@@ -144,6 +153,7 @@ ShallowWrapper {
 </ListItem>,
         "_debugID": 2,
         "_renderedOutput": <ListItem
+          ariaLabel="Assessment catalog: Spec Name"
           bank={
                     Object {
                               "displayName": Object {
@@ -153,11 +163,13 @@ ShallowWrapper {
           }
           focused={false}
           getBankChildren={[Function]}
+          isClickable={true}
           onFocus={[Function]}
           selectItem={[Function]}
 >
           <td>
                     <i
+                              aria-label="Assessment catalog"
                               className="material-icons"
                     >
                               folder
