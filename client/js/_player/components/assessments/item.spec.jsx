@@ -46,7 +46,7 @@ describe('item', () => {
   beforeEach(() => {
     question = {
       title:'Test Question Title',
-      material:'Test Question Material',
+      material:'Test Question Material'
     };
     currentItemIndex = 0;
     assessment = {};
@@ -67,7 +67,78 @@ describe('item', () => {
     expect(classTest.length).toEqual(0); // expect no class because numQuestionsChecking is truthy
   });
 
+  it('correctly identifies when a student has submitted a response', () => {
+    let hasSubmitted = result.submittedResponse({
+      numQuestionsChecking: 0
+    }, {
+      numQuestionsChecking: 0
+    });
+    expect(hasSubmitted).toEqual(false);
+
+    hasSubmitted = result.submittedResponse({
+      numQuestionsChecking: 0
+    }, {
+      numQuestionsChecking: 1
+    });
+    expect(hasSubmitted).toEqual(false);
+
+    hasSubmitted = result.submittedResponse({
+      numQuestionsChecking: 1
+    }, {
+      numQuestionsChecking: 0
+    });
+    expect(hasSubmitted).toEqual(true);
+  });
+
+  it('correctly identifies when a student has tried to submit a null response', () => {
+    let hasSubmitted = result.submittedNullResponse({
+      questionResult: {}
+    }, {
+      questionResult: {}
+    });
+    expect(hasSubmitted).toEqual(false);
+
+    hasSubmitted = result.submittedNullResponse({
+      questionResult: {
+        correct: true
+      }
+    }, {
+      questionResult: {}
+    });
+    expect(hasSubmitted).toEqual(false);
+
+    hasSubmitted = result.submittedNullResponse({
+      questionResult: {}
+    }, {
+      questionResult: {
+        correct: true
+      }
+    });
+    expect(hasSubmitted).toEqual(true);
+  });
+
+  it('correctly identifies feedback as coming from a null response', () => {
+    let isNoResponse = result.noResponseSelected({
+      feedback: '<p>Please select a valid answer.</p>'
+    });
+    expect(isNoResponse).toEqual(true);
+
+    isNoResponse = result.noResponseSelected({
+      feedback: '<p>Please do the hokey-pokey.</p>'
+    });
+
+    expect(isNoResponse).toEqual(false);
+  });
+
   describe('feedback', () => {
+    it('has a tabIndex, so it is focusable', () => {
+      questionResult = { correct:true, feedback:'Correct answer' };
+      numQuestionsChecking = 0;
+      renderItem();
+      const feedbackWrapper = TestUtils.findRenderedDOMComponentWithClass(result, 'c-question-feedback__wrapper'); // look for class
+      expect(feedbackWrapper.tabIndex).toEqual(-1);
+    });
+
     it('renders non-survey question with tick mark when item is correct', () => {
       questionResult = { correct:true, feedback:'Correct answer' };
       numQuestionsChecking = 0;
@@ -82,7 +153,8 @@ describe('item', () => {
 
     it('renders survey question without tick mark when item is correct', () => {
       question = {
-        question_type: 'survey_question' // set question type
+        question_type: 'survey_question', // set question type
+        answers: []
       };
       questionResult = { correct:true, feedback:'Correct answer' };
       numQuestionsChecking = 0;
@@ -90,6 +162,99 @@ describe('item', () => {
       svgTest = TestUtils.scryRenderedDOMComponentsWithTag(result, 'svg'); // look for svg tag
       expect(svgTest.length).toEqual(0); // expect no svg tag
       expect(question.question_type).toContain('survey_question');
+      expect(subject.textContent).toContain('Correct');
+      expect(subject.textContent).toContain('Correct answer');
+      expect(subject.textContent).not.toContain('Incorrect');
+      expect(subject.textContent).not.toContain('Incorrect answer');
+    });
+
+    it('renders multi-select survey question without tick mark when item is correct', () => {
+      question = {
+        question_type: 'multiple_answer_survey_question', // set question type
+        answers: []
+      };
+      questionResult = { correct:true, feedback:'Correct answer' };
+      numQuestionsChecking = 0;
+      renderItem();
+      svgTest = TestUtils.scryRenderedDOMComponentsWithTag(result, 'svg'); // look for svg tag
+      expect(svgTest.length).toEqual(0); // expect no svg tag
+      expect(question.question_type).toContain('survey_question');
+      expect(subject.textContent).toContain('Correct');
+      expect(subject.textContent).toContain('Correct answer');
+      expect(subject.textContent).not.toContain('Incorrect');
+      expect(subject.textContent).not.toContain('Incorrect answer');
+    });
+
+    it('renders ART without tick mark when item is correct', () => {
+      question = {
+        question_type: 'audio_upload_question', // set question type
+        answers: [],
+        audioTimeout: 100
+      };
+      questionResult = { correct:true, feedback:'Correct answer' };
+      numQuestionsChecking = 0;
+      renderItem();
+      svgTest = TestUtils.scryRenderedDOMComponentsWithTag(result, 'svg'); // look for svg tag
+      expect(svgTest.length).toEqual(0); // expect no svg tag
+      expect(subject.textContent).toContain('Correct');
+      expect(subject.textContent).toContain('Correct answer');
+      expect(subject.textContent).not.toContain('Incorrect');
+      expect(subject.textContent).not.toContain('Incorrect answer');
+    });
+
+    it('renders file upload without tick mark when item is correct', () => {
+      question = {
+        question_type: 'file_upload_question', // set question type
+        answers: []
+      };
+      questionResult = {
+        correct:true,
+        feedback:'Correct answer',
+        answerIds: [{
+          name: 'my_file.txt'
+        }]
+      };
+      numQuestionsChecking = 0;
+      renderItem();
+      svgTest = TestUtils.scryRenderedDOMComponentsWithTag(result, 'svg'); // look for svg tag
+      expect(svgTest.length).toEqual(0); // expect no svg tag
+      expect(subject.textContent).toContain('Correct');
+      expect(subject.textContent).toContain('Correct answer');
+      expect(subject.textContent).not.toContain('Incorrect');
+      expect(subject.textContent).not.toContain('Incorrect answer');
+    });
+
+    it('renders MW sandbox without tick mark when item is correct', () => {
+      question = {
+        question_type: 'movable_words_sandbox', // set question type
+        answers: [],
+        audioTimeout: 100
+      };
+      questionResult = { correct:true, feedback:'Correct answer' };
+      numQuestionsChecking = 0;
+      renderItem();
+      svgTest = TestUtils.scryRenderedDOMComponentsWithTag(result, 'svg'); // look for svg tag
+      expect(svgTest.length).toEqual(0); // expect no svg tag
+      expect(subject.textContent).toContain('Correct');
+      expect(subject.textContent).toContain('Correct answer');
+      expect(subject.textContent).not.toContain('Incorrect');
+      expect(subject.textContent).not.toContain('Incorrect answer');
+    });
+
+    it('renders short answer without tick mark when item is correct', () => {
+      question = {
+        question_type: 'short_answer_question', // set question type
+        answers: [],
+        question_meta: {
+          expectedLength: 10,
+          expectedLines: 5
+        }
+      };
+      questionResult = { correct:true, feedback:'Correct answer' };
+      numQuestionsChecking = 0;
+      renderItem();
+      svgTest = TestUtils.scryRenderedDOMComponentsWithTag(result, 'svg'); // look for svg tag
+      expect(svgTest.length).toEqual(0); // expect no svg tag
       expect(subject.textContent).toContain('Correct');
       expect(subject.textContent).toContain('Correct answer');
       expect(subject.textContent).not.toContain('Incorrect');
