@@ -4,8 +4,22 @@ export default function PublishButton(props) {
   const { togglePublishAssessment, assessment } = props;
   const isPublished = assessment.isPublished;
   const icon = isPublished ?
-    <i className="material-icons is-published">cloud_done</i> :
-    <i className="material-icons">cloud_upload</i>;
+    (
+      <i
+        aria-label="Unpublish assessment"
+        className="material-icons is-published"
+      >
+        cloud_done
+      </i>
+    ) :
+    (
+      <i
+        aria-label="Publish assessment"
+        className="material-icons"
+      >
+        cloud_upload
+      </i>
+    );
   if (!assessment.isToggling) {
     return (
       <button

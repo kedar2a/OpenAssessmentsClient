@@ -47,11 +47,16 @@ describe('New Assessments View', () => {
   it('Determines Icon status', () => {
     result = TestUtils.renderIntoDocument(<Stub><AssessmentView {...props} /></Stub>);
     let icons = TestUtils.scryRenderedDOMComponentsWithTag(result, 'i');
-    expect(icons[1].textContent).toBe('cloud_done');
+    expect(icons[1].textContent).toContain('cloud_done');
 
     props.isPublished = false;
     result = TestUtils.renderIntoDocument(<Stub><AssessmentView {...props} /></Stub>);
     icons = TestUtils.scryRenderedDOMComponentsWithTag(result, 'i');
-    expect(icons[1].textContent).toBe('cloud_upload');
+    expect(icons[1].textContent).toContain('cloud_upload');
+  });
+
+  it('should include a help link', () => {
+    const helpLinks = TestUtils.scryRenderedDOMComponentsWithClass(result, 'help-link');
+    expect(helpLinks.length).toBe(1);
   });
 });
