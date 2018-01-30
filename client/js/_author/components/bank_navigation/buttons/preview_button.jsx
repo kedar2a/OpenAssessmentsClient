@@ -4,14 +4,20 @@ export default function PreviewButton(props) {
   const isPublished = props.assessment.isPublished;
   return (
     <button
-      className={`au-c-btn au-c-btn--square au-c-btn--table ${isPublished ? '' : 'is-inactive'}`}
+      className={`au-c-btn au-c-btn--square au-c-table__btn  ${isPublished ? '' : 'is-inactive'}`}
+      disabled={!isPublished}
       onClick={(e) => {
         e.stopPropagation();
         window.open(`${window.location.href}banks/${props.assessment.bankId}/assessments/${props.assessment.id}/preview`);
       }}
       onFocus={props.onFocus}
     >
-      <i className="material-icons">remove_red_eye</i>
+      <i
+        aria-label="Preview assessment"
+        className="material-icons"
+      >
+        remove_red_eye
+      </i>
     </button>
   );
 }

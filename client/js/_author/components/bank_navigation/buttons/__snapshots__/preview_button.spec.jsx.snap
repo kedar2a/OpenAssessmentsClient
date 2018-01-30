@@ -9,11 +9,13 @@ ShallowWrapper {
   },
   "length": 1,
   "node": <button
-    className="au-c-btn au-c-btn--square au-c-btn--table is-inactive"
+    className="au-c-btn au-c-btn--square au-c-table__btn  is-inactive"
+    disabled={true}
     onClick={[Function]}
     onFocus={[Function]}
 >
     <i
+        aria-label="Preview assessment"
         className="material-icons"
     >
         remove_red_eye
@@ -21,11 +23,13 @@ ShallowWrapper {
 </button>,
   "nodes": Array [
     <button
-      className="au-c-btn au-c-btn--square au-c-btn--table is-inactive"
+      className="au-c-btn au-c-btn--square au-c-table__btn  is-inactive"
+      disabled={true}
       onClick={[Function]}
       onFocus={[Function]}
 >
       <i
+            aria-label="Preview assessment"
             className="material-icons"
       >
             remove_red_eye
@@ -83,11 +87,13 @@ ShallowWrapper {
       "_pendingStateQueue": null,
       "_renderedComponent": NoopInternalComponent {
         "_currentElement": <button
-          className="au-c-btn au-c-btn--square au-c-btn--table is-inactive"
+          className="au-c-btn au-c-btn--square au-c-table__btn  is-inactive"
+          disabled={true}
           onClick={[Function]}
           onFocus={[Function]}
 >
           <i
+                    aria-label="Preview assessment"
                     className="material-icons"
           >
                     remove_red_eye
@@ -95,11 +101,13 @@ ShallowWrapper {
 </button>,
         "_debugID": 2,
         "_renderedOutput": <button
-          className="au-c-btn au-c-btn--square au-c-btn--table is-inactive"
+          className="au-c-btn au-c-btn--square au-c-table__btn  is-inactive"
+          disabled={true}
           onClick={[Function]}
           onFocus={[Function]}
 >
           <i
+                    aria-label="Preview assessment"
                     className="material-icons"
           >
                     remove_red_eye
