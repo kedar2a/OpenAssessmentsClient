@@ -9,11 +9,13 @@ ShallowWrapper {
   },
   "length": 1,
   "node": <button
-    className="au-c-btn au-c-btn--square au-c-btn--table "
+    className="au-c-btn au-c-btn--square au-c-table__btn "
+    disabled={false}
     onClick={[Function]}
     onFocus={[Function]}
 >
     <i
+        aria-label="Delete assessment"
         className="material-icons"
     >
         delete
@@ -21,11 +23,13 @@ ShallowWrapper {
 </button>,
   "nodes": Array [
     <button
-      className="au-c-btn au-c-btn--square au-c-btn--table "
+      className="au-c-btn au-c-btn--square au-c-table__btn "
+      disabled={false}
       onClick={[Function]}
       onFocus={[Function]}
 >
       <i
+            aria-label="Delete assessment"
             className="material-icons"
       >
             delete
@@ -85,11 +89,13 @@ ShallowWrapper {
       "_pendingStateQueue": null,
       "_renderedComponent": NoopInternalComponent {
         "_currentElement": <button
-          className="au-c-btn au-c-btn--square au-c-btn--table "
+          className="au-c-btn au-c-btn--square au-c-table__btn "
+          disabled={false}
           onClick={[Function]}
           onFocus={[Function]}
 >
           <i
+                    aria-label="Delete assessment"
                     className="material-icons"
           >
                     delete
@@ -97,11 +103,13 @@ ShallowWrapper {
 </button>,
         "_debugID": 2,
         "_renderedOutput": <button
-          className="au-c-btn au-c-btn--square au-c-btn--table "
+          className="au-c-btn au-c-btn--square au-c-table__btn "
+          disabled={false}
           onClick={[Function]}
           onFocus={[Function]}
 >
           <i
+                    aria-label="Delete assessment"
                     className="material-icons"
           >
                     delete

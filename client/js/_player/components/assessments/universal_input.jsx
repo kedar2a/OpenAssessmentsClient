@@ -48,11 +48,26 @@ export default class UniversalInput extends React.Component {
     audioRecordStop: React.PropTypes.func
   };
 
+  constructor() {
+    super();
+    this.state = {
+      focusedItem: null
+    };
+  }
+
   wasSelected(id) {
     if (this.props.response) {
       return this.props.response.indexOf(id) > -1;
     }
     return null;
+  }
+
+  focusItem(shouldFocus, item) { // set currently-focused item
+    if (shouldFocus) {
+      this.setState({ focusedItem: item });
+    } else {
+      this.setState({ focusedItem: null });
+    }
   }
 
   render() {
@@ -121,14 +136,15 @@ export default class UniversalInput extends React.Component {
               name="answer-radio"
               checked={this.wasSelected(answer.id)}
               selectAnswer={selectRadio}
+              focused={this.state.focusedItem === answer.id}
+              onFocus={shouldFocus => this.focusItem(shouldFocus, answer.id)}
             />
           );
         };
-        answerInputs = _.chunk(item.answers, 2).map(row => (
-          <ul key={`${item.id}_row_${row[0].id}`} className="o-grid">
-            {row.map(multipleChoiceAnswer)}
-          </ul>
-        ));
+        answerInputs = (
+          <div className="o-grid__wrapper" role="radiogroup">
+            {item.answers.map(multipleChoiceAnswer)}
+          </div>);
         break;
       }
       case 'edx_dropdown': {
@@ -170,7 +186,7 @@ export default class UniversalInput extends React.Component {
         answerInputs = (
           <div className="c-text-answer">
             <textarea
-              placeholder="Enter answer here..."
+              placeholder={props.localizedStrings.textArea.placeholder}
               onBlur={e => props.selectAnswer(e.target.value, true)}
               cols={parseInt(props.item.question_meta.expectedLength, 10) || 200}
               rows={parseInt(props.item.question_meta.expectedLines, 10) || 1}
@@ -185,7 +201,7 @@ export default class UniversalInput extends React.Component {
         answerInputs = (
           <div className="c-text-answer">
             <textarea
-              placeholder="Enter answer here..."
+              placeholder={props.localizedStrings.textArea.placeholder}
               onBlur={e => props.selectAnswer(e.target.value, true)}
               rows={parseInt(props.item.question_meta.expectedLines, 10) || 1}
               disabled={props.isResult}
@@ -195,7 +211,8 @@ export default class UniversalInput extends React.Component {
         );
         break;
       }
-      case 'multiple_answers_question': {
+      case 'multiple_answers_question':
+      case 'multiple_answer_survey_question': {
         const multipleAnswer = (answer) => {
           const selectCheckbox = _.partialRight(props.selectAnswer, false);
           const id = `${item.id}_${answer.id}`;
@@ -204,18 +221,21 @@ export default class UniversalInput extends React.Component {
               isDisabled={props.isResult}
               key={id}
               id={id}
+              name="answer-checkbox"
               item={answer}
               isHtml={item.isHtml}
               checked={this.wasSelected(answer.id)}
               selectAnswer={selectCheckbox}
+              focused={this.state.focusedItem === answer.id}
+              onFocus={shouldFocus => this.focusItem(shouldFocus, answer.id)}
             />
           );
         };
-        answerInputs = _.chunk(item.answers, 2).map(row => (
-          <ul key={`${item.id}_row_${row[0].id}`} className="o-grid">
-            {row.map(multipleAnswer)}
-          </ul>
-        ));
+        answerInputs = (
+          <div className="o-grid__wrapper" role="group">
+            {item.answers.map(multipleAnswer)}
+          </div>
+        );
         break;
       }
       case 'edx_image_mapped_input': {
