@@ -47,6 +47,7 @@ function getFeedback(question, state) {
       return localizedStrings.middleware.mustUploadFile;
 
     case 'audio_upload_question':
+    case 'movable_words_sandbox':
       return localizedStrings.middleware.mustRecordFile;
 
     default:
