@@ -157,6 +157,18 @@ function checkAnswers(store, action) {
     //  of the default return value. We need to see if it
     // is actually undefined before calling toJS()
     let userInput = state.assessmentProgress.getIn(['responses', `${questionIndex}`]);
+
+    // Should only continue checking if the answer has been answered correctly
+    //   already. This prevents the "Finish" button from re-submitting
+    //   the last question in a ``unlock_next=ON_CORRECT`` configuration.
+    // ``state.questionResults[questionIndex][0]`` is
+    //   always the most recent response for the given question.
+    if (state.assessmentResults.questionResults[questionIndex] &&
+        state.settings.unlock_next === 'ON_CORRECT' &&
+        state.assessmentResults.questionResults[questionIndex][0].correct) {
+      return null;
+    }
+
     userInput = userInput ? userInput.toJS() : [];
 
     const url = `assessment/banks/${state.settings.bank}/assessmentstaken/${state.assessmentMeta.id}/questions/${question.json.id}/submit`;
@@ -327,7 +339,6 @@ export default {
           settings      : action.settings
         }
       };
-
     }
   },
 
@@ -337,12 +348,17 @@ export default {
 
       const url = `assessment/banks/${state.settings.bank}/assessmentstaken/${state.assessmentMeta.id}/finish`;
 
+      store.dispatch({
+        type     : action.type,
+        original : action,
+      });
+
       const promise = postQbank(state, url);
 
       if (promise) {
         promise.then((response, error) => {
           store.dispatch({
-            type     :     action.type + DONE,
+            type     : action.type + DONE,
             payload  : response.body,
             original : action,
             response,
