@@ -21,6 +21,7 @@
 
   [role="tooltip"] {
     display: none;
+    text-transform: initial;
   }
 
   &:hover span[role="tooltip"],
@@ -34,8 +35,9 @@
     padding-bottom: 0.563em;
     padding-left: 0.5em;
     border-radius: $radius;
-    background: $black;
-    color: white;
+    background: $gray4;
+    color: $black;
+    box-shadow: 1px 1px 7px;
   }
 }
 
